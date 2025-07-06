@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36">
+  <g id="Group_72" data-name="Group 72" transform="translate(-968 -562)">
+    <g id="Rectangle_4060" data-name="Rectangle 4060" transform="translate(968 562)" fill="none" stroke="#fff" stroke-width="1" opacity="0.1">
+      <rect width="36" height="36" rx="18" stroke="none"/>
+      <rect x="0.5" y="0.5" width="35" height="35" rx="17.5" fill="none"/>
+    </g>
+    <path id="telegram-1" d="M13.788,17.834a.892.892,0,0,0,.83.109.87.87,0,0,0,.543-.63c.652-3.063,2.233-10.816,2.826-13.6a.586.586,0,0,0-.195-.568.6.6,0,0,0-.6-.1C14.049,4.2,4.365,7.835.406,9.3a.617.617,0,0,0,.038,1.172C2.22,11,4.55,11.742,4.55,11.742S5.639,15.03,6.207,16.7a.657.657,0,0,0,.452.432.65.65,0,0,0,.608-.155l2.322-2.192s2.679,1.964,4.2,3.046ZM5.53,11.326,6.789,15.48l.28-2.63L14.708,5.96a.208.208,0,0,0,.025-.283.213.213,0,0,0-.282-.048l-8.92,5.7Z" transform="translate(977 570)" fill="#fff"/>
+  </g>
+</svg>

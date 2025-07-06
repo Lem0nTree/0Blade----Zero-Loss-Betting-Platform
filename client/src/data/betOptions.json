@@ -1,0 +1,487 @@
+[
+  {
+    "category": 0,
+    "betOptions": [
+      {
+        "tabTitle": "1X2",
+        "label": "To win the match",
+        "options": [
+          {
+            "name": "1",
+            "value": "1"
+          },
+          {
+            "name": "X",
+            "value": "2"
+          },
+          {
+            "name": "2",
+            "value": "3"
+          }
+        ]
+      },
+      {
+        "tabTitle": "Goal/No Goal",
+        "label": "Goal / No Goal",
+        "options": [
+          {
+            "name": "Goal",
+            "value": "4"
+          },
+          {
+            "name": "No Goal",
+            "value": "5"
+          }
+        ]
+      },
+      {
+        "tabTitle": "Over/Under",
+        "label": "Over/Under",
+        "options": [
+          {
+            "name": "Over 1.5",
+            "value": "6"
+          },
+          {
+            "name": "Under 1.5",
+            "value": "7"
+          },
+          {
+            "name": "Over 2.5",
+            "value": "8"
+          },
+          {
+            "name": "Under 2.5",
+            "value": "9"
+          },
+          {
+            "name": "Over 3.5",
+            "value": "10"
+          },
+          {
+            "name": "Under 3.5",
+            "value": "11"
+          }
+        ]
+      },
+      {
+        "tabTitle": "Handicap",
+        "label": "Handicap Match",
+        "options": [
+          {
+            "name": "Handicap 1 (-2)",
+            "value": "12"
+          },
+          {
+            "name": "Draw (-2)",
+            "value": "13"
+          },
+          {
+            "name": "Handicap 2 (-2)",
+            "value": "14"
+          }
+        ]
+      },
+      {
+        "tabTitle": "Accurate Score",
+        "label": "Accurate Score",
+        "options": [
+          {
+            "name": "0-0",
+            "value": "15"
+          },
+          {
+            "name": "1-0",
+            "value": "16"
+          },
+          {
+            "name": "0-1",
+            "value": "17"
+          },
+          {
+            "name": "1-1",
+            "value": "18"
+          },
+          {
+            "name": "2-1",
+            "value": "19"
+          },
+          {
+            "name": "1-2",
+            "value": "20"
+          },
+          {
+            "name": "2-0",
+            "value": "21"
+          },
+          {
+            "name": "0-2",
+            "value": "22"
+          },
+          {
+            "name": "2-2",
+            "value": "23"
+          },
+          {
+            "name": "3-1",
+            "value": "24"
+          },
+          {
+            "name": "1-3",
+            "value": "25"
+          },
+          {
+            "name": "3-2",
+            "value": "26"
+          },
+          {
+            "name": "2-3",
+            "value": "27"
+          },
+          {
+            "name": "3-0",
+            "value": "28"
+          },
+          {
+            "name": "0-3",
+            "value": "29"
+          },
+          {
+            "name": "3-3",
+            "value": "30"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "category": 1,
+    "betOptions": [
+      {
+        "tabTitle": "Winner",
+        "label": "Winner",
+        "options": [
+          {
+            "name": "1",
+            "value": "1"
+          },
+          {
+            "name": "X",
+            "value": "2"
+          },
+          {
+            "name": "2",
+            "value": "3"
+          }
+        ]
+      },
+      {
+        "tabTitle": "KO",
+        "label": "KO / No KO",
+        "options": [
+          {
+            "name": "KO",
+            "value": "4"
+          },
+          {
+            "name": "No KO",
+            "value": "5"
+          }
+        ]
+      },
+      {
+        "tabTitle": "Final Bell",
+        "label": "Will the fight go the distance",
+        "options": [
+          {
+            "name": "Yes",
+            "value": "6"
+          },
+          {
+            "name": "No",
+            "value": "7"
+          }
+        ]
+      },
+      {
+        "tabTitle": "Over/Under",
+        "label": "Over/Under",
+        "options": [
+          {
+            "name": "Over 2.5",
+            "value": "8"
+          },
+          {
+            "name": "Under 2.5",
+            "value": "9"
+          }
+        ]
+      },
+      {
+        "tabTitle": "Round",
+        "label": "Exact Round",
+        "options": [
+          {
+            "name": "1 in Round 1",
+            "value": "10"
+          },
+          {
+            "name": "1 in Round 2",
+            "value": "11"
+          },
+          {
+            "name": "1 in Round 3",
+            "value": "12"
+          },
+          {
+            "name": "1 in Round 4",
+            "value": "13"
+          },
+          {
+            "name": "1 in Round 5",
+            "value": "14"
+          },
+          {
+            "name": "2 in Round 1",
+            "value": "15"
+          },
+          {
+            "name": "2 in Round 2",
+            "value": "16"
+          },
+          {
+            "name": "2 in Round 3",
+            "value": "17"
+          },
+          {
+            "name": "2 in Round 4",
+            "value": "18"
+          },
+          {
+            "name": "2 in Round 5",
+            "value": "19"
+          }
+        ]
+      },
+      {
+        "tabTitle": "Method",
+        "label": "Winning Method",
+        "options": [
+          {
+            "name": "1 by KO",
+            "value": "20"
+          },
+          {
+            "name": "1 by Submission",
+            "value": "21"
+          },
+          {
+            "name": "1 by Decision",
+            "value": "22"
+          },
+          {
+            "name": "2 by KO",
+            "value": "23"
+          },
+          {
+            "name": "2 by Submission",
+            "value": "24"
+          },
+          {
+            "name": "2 by Decision",
+            "value": "25"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "category": 2,
+    "betOptions": [
+      {
+        "tabTitle": "Winner",
+        "label": "Winner",
+        "options": [
+          {
+            "name": "1",
+            "value": "1"
+          },
+          {
+              "name": "2",
+              "value": "2"
+            }
+        ]
+      },
+      {
+        "tabTitle": "Total (incl. OT)",
+        "label": "Over 208.5 / Under 208.5",
+        "options": [
+          {
+            "name": "Over 208.5",
+            "value": "3"
+          },
+          {
+            "name": "Under 208.5",
+            "value": "4"
+          }
+        ]
+      },
+      {
+        "tabTitle": "Handicap (incl. OT)",
+        "label": "1 (-9.5) / 2 (+9.5)",
+        "options": [
+          {
+            "name": "1 (-9.5)",
+            "value": "5"
+          },
+          {
+            "name": "2 (+9.5)",
+            "value": "6"
+          }
+        ]
+      },
+      {
+          "tabTitle": "1st Quarter Winner",
+          "label": "1st Quarter Winner",
+          "options": [
+            {
+              "name": "1",
+              "value": "7"
+            },
+            {
+              "name": "x",
+              "value": "8"
+            },
+            {
+              "name": "2",
+              "value": "9"
+            }
+          ]
+      },
+      {
+          "tabTitle": "2nd Quarter Winner",
+          "label": "2nd Quarter Winner",
+          "options": [
+            {
+              "name": "1",
+              "value": "10"
+            },
+            {
+              "name": "x",
+              "value": "11"
+            },
+            {
+              "name": "2",
+              "value": "12"
+            }
+          ]
+      },
+      {
+          "tabTitle": "3rd Quarter Winner",
+          "label": "3rd Quarter Winner",
+          "options": [
+            {
+              "name": "1",
+              "value": "13"
+            },
+            {
+              "name": "x",
+              "value": "14"
+            },
+            {
+              "name": "2",
+              "value": "15"
+            }
+          ]
+      },
+      {
+          "tabTitle": "3rd Quarter Total",
+          "label": "Over 55.5 / Under 55.5",
+          "options": [
+            {
+              "name": "Over 55.5",
+              "value": "16"
+            },
+            {
+              "name": "Under 55.5",
+              "value": "17"
+            }
+          ]
+      },
+      {
+          "tabTitle": "2nd Half Winner",
+          "label": "2nd Half Winner",
+          "options": [
+            {
+              "name": "1",
+              "value": "18"
+            },
+            {
+              "name": "x",
+              "value": "19"
+            },
+            {
+              "name": "2",
+              "value": "20"
+            }
+          ]       
+      },
+      {
+          "tabTitle": "1 Total",
+          "label": "Over 110.5 / Under 110.5",
+          "options": [
+            {
+              "name": "Over 110.5",
+              "value": "21"
+            },
+            {
+              "name": "Under 110.5",
+              "value": "22"
+            }
+          ]
+      },
+      {
+          "tabTitle": "2 Total",
+          "label": "Over 110.5 / Under 110.5",
+          "options": [
+            {
+              "name": "Over 110.5",
+              "value": "21"
+            },
+            {
+              "name": "Under 110.5",
+              "value": "22"
+            }
+          ]
+      },
+      {
+          "tabTitle": "Race to 30 Points",
+          "label": "Race to 30 Points",
+          "options": [
+            {
+              "name": "1",
+              "value": "23"
+            },
+            {
+              "name": "2",
+              "value": "24"
+            }
+          ]
+      },
+      {
+          "tabTitle": "1st Free Throw Scored",
+          "label": "1st Free Throw Scored ",
+          "options": [
+            {
+              "name": "1",
+              "value": "25"
+            },
+            {
+              "name": "2",
+              "value": "26"
+            }
+          ]
+      }
+    ]
+  }
+]

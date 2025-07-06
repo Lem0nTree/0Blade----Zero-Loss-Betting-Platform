@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20">
+  <g id="vuesax_bold_money-2" data-name="vuesax/bold/money-2" transform="translate(-364 -252)">
+    <g id="money-2" transform="translate(364 252)">
+      <path id="Vector" d="M0,0H20V20H0Z" fill="none" opacity="0"/>
+      <path id="Vector-2" data-name="Vector" d="M5,2.5A2.5,2.5,0,1,1,2.5,0,2.5,2.5,0,0,1,5,2.5Z" transform="translate(7.5 7.5)" fill="#fff"/>
+      <path id="Vector-3" data-name="Vector" d="M12.5,0H4.167C1.667,0,0,1.25,0,4.167V10c0,2.917,1.667,4.167,4.167,4.167H12.5c2.5,0,4.167-1.25,4.167-4.167V4.167C16.667,1.25,15,0,12.5,0ZM4.167,12.917c0-2.35-.758-3.217-2.917-3.317V4.567c2.158-.1,2.917-.967,2.917-3.317H12.5c0,2.35.758,3.217,2.917,3.317V9.6c-2.158.1-2.917.967-2.917,3.317Z" transform="translate(1.667 2.917)" fill="#fff"/>
+    </g>
+  </g>
+</svg>
