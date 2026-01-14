@@ -495,6 +495,190 @@ export default function Match() {
                         Place Bet
                       </Button>
                     </Box>
+
+                    <Box
+                      sx={{
+                        marginTop: '24px',
+                        padding: '16px',
+                        background: 'rgba(255, 255, 255, 0.03)',
+                        border: '1px solid rgba(255, 255, 255, 0.08)',
+                        borderRadius: '12px',
+                      }}
+                    >
+                      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+                        <Typography
+                          component="p"
+                          sx={{
+                            fontWeight: 500,
+                            fontSize: '12px',
+                            lineHeight: '16px',
+                            color: '#9ca3af',
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.5px',
+                          }}
+                        >
+                          Powered by Pendle
+                        </Typography>
+                        <Box
+                          sx={{
+                            width: '20px',
+                            height: '20px',
+                            borderRadius: '4px',
+                            background: 'linear-gradient(135deg, #00d57d 0%, #00b86a 100%)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: '10px',
+                            fontWeight: 700,
+                            color: '#ffffff',
+                          }}
+                        >
+                          P
+                        </Box>
+                      </Box>
+                      <Box sx={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                        <Typography
+                          component="p"
+                          sx={{
+                            fontWeight: 400,
+                            fontSize: '12px',
+                            lineHeight: '16px',
+                            color: '#9ca3af',
+                          }}
+                        >
+                          When you bet your RWA asset, it gets split into:
+                        </Typography>
+                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: '8px', marginLeft: '8px' }}>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <Box
+                              sx={{
+                                width: '6px',
+                                height: '6px',
+                                borderRadius: '50%',
+                                background: '#00d57d',
+                              }}
+                            />
+                            <Typography
+                              component="span"
+                              sx={{
+                                fontWeight: 600,
+                                fontSize: '12px',
+                                lineHeight: '16px',
+                                color: '#ffffff',
+                              }}
+                            >
+                              PT (Principal Token)
+                            </Typography>
+                            <Typography
+                              component="span"
+                              sx={{
+                                fontWeight: 400,
+                                fontSize: '12px',
+                                lineHeight: '16px',
+                                color: '#9ca3af',
+                                marginLeft: '4px',
+                              }}
+                            >
+                              - principal stripped of yield
+                            </Typography>
+                          </Box>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <Box
+                              sx={{
+                                width: '6px',
+                                height: '6px',
+                                borderRadius: '50%',
+                                background: '#00d57d',
+                              }}
+                            />
+                            <Typography
+                              component="span"
+                              sx={{
+                                fontWeight: 600,
+                                fontSize: '12px',
+                                lineHeight: '16px',
+                                color: '#ffffff',
+                              }}
+                            >
+                              YT (Yield Token)
+                            </Typography>
+                            <Typography
+                              component="span"
+                              sx={{
+                                fontWeight: 400,
+                                fontSize: '12px',
+                                lineHeight: '16px',
+                                color: '#9ca3af',
+                                marginLeft: '4px',
+                              }}
+                            >
+                              - future yield rights
+                            </Typography>
+                          </Box>
+                        </Box>
+                        <Box
+                          sx={{
+                            marginTop: '8px',
+                            padding: '10px',
+                            background: 'rgba(0, 213, 125, 0.08)',
+                            borderRadius: '8px',
+                            borderLeft: '3px solid #00d57d',
+                          }}
+                        >
+                          <Typography
+                            component="p"
+                            sx={{
+                              fontWeight: 400,
+                              fontSize: '12px',
+                              lineHeight: '16px',
+                              color: '#9ca3af',
+                            }}
+                          >
+                            <Box
+                              component="span"
+                              sx={{
+                                fontWeight: 600,
+                                color: '#ffffff',
+                              }}
+                            >
+                              If you lose:
+                            </Box>
+                            {' '}You receive PT (principal without yield) redeemable on Pendle on{' '}
+                            <Box
+                              component="span"
+                              sx={{
+                                color: '#00d57d',
+                                fontWeight: 600,
+                              }}
+                            >
+                              {getRedeemableDate()}
+                            </Box>
+                            .
+                          </Typography>
+                          <Typography
+                            component="p"
+                            sx={{
+                              fontWeight: 400,
+                              fontSize: '12px',
+                              lineHeight: '16px',
+                              color: '#9ca3af',
+                              marginTop: '6px',
+                            }}
+                          >
+                            <Box
+                              component="span"
+                              sx={{
+                                fontWeight: 600,
+                                color: '#ffffff',
+                              }}
+                            >
+                              If you win:
+                            </Box>
+                            {' '}You receive PT plus extra future yields from YT.
+                          </Typography>
+                        </Box>
+                      </Box>
+                    </Box>
                   </Box>
                 </>
               ) : (
