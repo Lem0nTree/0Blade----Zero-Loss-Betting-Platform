@@ -111,6 +111,18 @@ export default function Match() {
     return `${months} ${months === 1 ? 'Month' : 'Months'}`;
   };
 
+  // Calculate redeemable date based on time period
+  const getRedeemableDate = () => {
+    const now = new Date();
+    const redeemableDate = new Date(now);
+    redeemableDate.setMonth(redeemableDate.getMonth() + timePeriod);
+    return redeemableDate.toLocaleDateString('en-US', { 
+      month: 'long', 
+      day: 'numeric', 
+      year: 'numeric' 
+    });
+  };
+
   // Calculate betting power based on time period
   const calculateBettingPower = () => {
     // Mock calculation - could be based on time period and amount
@@ -271,6 +283,9 @@ export default function Match() {
                       <Typography component="h5" style={{ marginBottom: '15px', fontWeight: 600, fontSize: '18px', lineHeight: '22px', color: '#ffffff' }}>
                         Bet Amount
                       </Typography>
+                      <Typography component="p" style={{ marginBottom: '10px', fontWeight: 500, fontSize: '14px', lineHeight: '18px', color: '#5d6673' }}>
+                        Underlying Asset Amount
+                      </Typography>
                       <TextField
                         fullWidth
                         type="number"
@@ -319,7 +334,7 @@ export default function Match() {
 
                     <Box className="slidr_flex_box">
                       <Box className="num_flex">
-                        <Typography component="h5">Time Period</Typography>
+                        <Typography component="h5">Underlying Future Yield Lock</Typography>
                         <Typography component="h5">{getTimePeriodLabel(timePeriod)}</Typography>
                       </Box>
                       <Slider
@@ -369,24 +384,14 @@ export default function Match() {
 
                     <Box className="bet_bttm_cnter_bx">
                       <Box className="bttm_cnter_row">
-                        <Typography component="p">Potential Winning</Typography>
-                        <Box style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          <Typography component="p" style={{ color: '#00d57d' }}>
-                            {calculatePotentialWinning().toFixed(2)} {matchDetails?.farmtoken || 'FRAX'}
-                          </Typography>
-                          <Box
-                            component="img"
-                            src={`img/tokens/${(matchDetails?.farmtoken || 'FRAX').toLowerCase()}.svg`}
-                            alt=""
-                            onError={(e: any) => {
-                              e.target.src = 'img/frax_ic.svg';
-                            }}
-                          />
-                        </Box>
-                      </Box>
-                      <Box className="bttm_cnter_row">
                         <Typography component="p">Betting Power</Typography>
                         <Typography component="p">{calculateBettingPower()} {matchDetails?.farmtoken || 'FRAX'}</Typography>
+                      </Box>
+                      <Box className="bttm_cnter_row">
+                        <Typography component="p">Potential Winning</Typography>
+                        <Typography component="p" style={{ color: '#00d57d' }}>
+                          {calculatePotentialWinning().toFixed(2)} {matchDetails?.farmtoken || 'FRAX'}
+                        </Typography>
                       </Box>
                       <Box className="bttm_cnter_row">
                         <Typography component="p">Payout</Typography>
@@ -396,6 +401,78 @@ export default function Match() {
                             : '0.0'}%
                         </Typography>
                       </Box>
+                      
+                      <Box
+                        sx={{
+                          marginTop: '20px',
+                          marginBottom: '15px',
+                          padding: '16px',
+                          background: 'linear-gradient(135deg, rgba(0, 213, 125, 0.12) 0%, rgba(0, 213, 125, 0.06) 100%)',
+                          border: '1px solid rgba(0, 213, 125, 0.2)',
+                          borderRadius: '12px',
+                          position: 'relative',
+                          overflow: 'hidden',
+                          '&::before': {
+                            content: '""',
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
+                            width: '4px',
+                            height: '100%',
+                            background: '#00d57d',
+                          },
+                        }}
+                      >
+                        <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                          <Box
+                            component="img"
+                            src="img/i_140_img_ppup.svg"
+                            alt=""
+                            sx={{
+                              width: '20px',
+                              height: '20px',
+                              marginTop: '2px',
+                              flexShrink: 0,
+                            }}
+                          />
+                          <Box sx={{ flex: 1 }}>
+                            <Typography
+                              component="p"
+                              sx={{
+                                fontWeight: 600,
+                                fontSize: '14px',
+                                lineHeight: '20px',
+                                color: '#ffffff',
+                                marginBottom: '8px',
+                              }}
+                            >
+                              By placing this bet, you agree to bet your future yield on your RWA asset.
+                            </Typography>
+                            <Typography
+                              component="p"
+                              sx={{
+                                fontWeight: 400,
+                                fontSize: '13px',
+                                lineHeight: '18px',
+                                color: '#9ca3af',
+                              }}
+                            >
+                              In case of a lost bet, you will receive the underlying RWA asset with a redeemable date on Pendle on{' '}
+                              <Box
+                                component="span"
+                                sx={{
+                                  color: '#00d57d',
+                                  fontWeight: 600,
+                                }}
+                              >
+                                {getRedeemableDate()}
+                              </Box>
+                              {' '}(based on your {getTimePeriodLabel(timePeriod).toLowerCase()} future yield lock period).
+                            </Typography>
+                          </Box>
+                        </Box>
+                      </Box>
+
                       <Button
                         fullWidth
                         onClick={handlePlaceBet}
@@ -417,21 +494,6 @@ export default function Match() {
                       >
                         Place Bet
                       </Button>
-                    </Box>
-
-                    <Box className="bet_bttm_last_bx">
-                      <Box className="allert_bx">
-                        <Box component="img" src="img/i_140_img_ppup.svg" alt="" />
-                        <Typography component="p">
-                          In case of a lost bet, you will receive back your principal amount that can be claimed back on Pendle at the end of the selected time period.
-                        </Typography>
-                      </Box>
-                      <Box className="allert_bx2">
-                        <Box component="img" src="img/allert_ic.svg" alt="" />
-                        <Typography component="p">
-                          Make sure you have enough balance in your wallet to place this bet.
-                        </Typography>
-                      </Box>
                     </Box>
                   </Box>
                 </>
