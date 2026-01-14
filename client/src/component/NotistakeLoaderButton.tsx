@@ -1,18 +1,16 @@
 import { Button, CircularProgress } from '@mui/material';
 import { PropsWithChildren, useState } from 'react';
-import { useAsyncFnWithNotistake } from '../store/slices/messages-slice';
 
 interface NotistakeLoaderButtonProps {
-  onClick?: () => Promise<void>;
+  onClick?: () => Promise<void> | void;
   msg?: string;
-  style?;
-  className?;
+  style?: React.CSSProperties;
+  className?: string;
   disabled?: boolean;
 }
 
 export default function NotistakeLoaderButton(props: PropsWithChildren<NotistakeLoaderButtonProps>) {
   const [loading, setLoading] = useState(false);
-  const withNotistake = useAsyncFnWithNotistake();
 
   const onClick = async () => {
     if (!props.onClick) {
@@ -20,12 +18,13 @@ export default function NotistakeLoaderButton(props: PropsWithChildren<Notistake
     }
 
     setLoading(true);
-    if (props.msg) {
-      await withNotistake(props.msg, props.onClick);
-    } else {
+    try {
       await props.onClick();
+    } catch (error) {
+      console.error('Button action error:', error);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   return (

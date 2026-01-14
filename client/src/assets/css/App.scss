@@ -2135,7 +2135,7 @@ iframe {
   }
 }
 .single_bet_box {
-  padding: 30px 15px 15px 15px;
+    padding: 30px 20px 15px 20px;
   background: #1d232c;
   border-radius: 16px 16px 0px 0px;
   margin-left: 40px;
@@ -2147,7 +2147,7 @@ iframe {
   .head_txt_clean_img {
     display: flex;
     align-items: center;
-    padding: 0 15px;
+    margin-bottom: 20px;
     h3 {
       font-weight: 600;
       font-size: 18px;
@@ -2160,14 +2160,14 @@ iframe {
   }
 }
 .single_bet_bttm_box {
-  margin-left: 40px;
   margin-top: 5px;
   @media screen and (max-width: 1400px) {
     margin-left: 0;
   }
 }
 .single_bet_inn01 {
-  margin-top: 15px;
+  margin-top: 0;
+  margin-bottom: 15px;
   background: #282e38;
   border-radius: 10px;
   .check_text_flex_box {
@@ -2225,10 +2225,9 @@ iframe {
   }
 }
 .single_bet_bttm_box {
-  background: #1a2028;
   border-radius: 16px 16px 16px 16px;
   .slidr_flex_box {
-    padding: 15px;
+    padding: 15px 0;
     border-bottom: 1px solid #222831;
     .MuiSlider-sizeMedium {
       .MuiSlider-rail {
@@ -2259,7 +2258,7 @@ iframe {
     }
   }
   .bet_bttm_cnter_bx {
-    padding: 5px 15px 15px 15px;
+    padding: 5px 0 15px 0;
     border-bottom: 1px solid #222831;
     .bttm_cnter_row {
       display: flex;
@@ -2290,7 +2289,7 @@ iframe {
     }
   }
   .bet_bttm_last_bx {
-    padding: 15px 15px 15px 15px;
+    padding: 15px 0;
     .allert_bx {
       display: flex;
       padding: 15px;

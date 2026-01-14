@@ -1,20 +1,12 @@
-import { AppBar, Toolbar, Typography, Button, IconButton, Drawer, Link, MenuItem, Box } from '@mui/material';
-import MenuIcon from '@mui/icons-material/Menu';
+import { AppBar, Toolbar, Typography, Button, Box } from '@mui/material';
 import React, { useState, useEffect } from 'react';
-import { Link as RouterLink } from 'react-router-dom';
 import { makeStyles } from '@mui/styles';
 import Sidebar from './Sidebar';
 import Banner from './Banner';
-import ConnectMenu from '../component/connect-button';
-import { accountEllipsis } from '../helpers';
-import { useWeb3Context } from '../hooks';
-import InputLabel from '@mui/material/InputLabel';
-import FormHelperText from '@mui/material/FormHelperText';
 import FormControl from '@mui/material/FormControl';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
-import { NavLink } from 'react-router-dom';
+import MenuItem from '@mui/material/MenuItem';
 import Menu from '@mui/material/Menu';
-import { useLocation } from 'react-router-dom';
 
 const headersData = [
   {
@@ -102,8 +94,6 @@ export default function Header() {
 
   const { logo, menuButton, drawerContainer } = useStyles();
 
-  const { address, chainID } = useWeb3Context();
-
   const [state, setState] = useState({
     mobileView: false,
     drawerOpen: false,
@@ -130,16 +120,9 @@ export default function Header() {
   const displayDesktop = () => {
     return (
       <Toolbar className="toolbar">
-        <Link
-          {...{
-            component: RouterLink,
-            to: '/',
-            color: 'inherit',
-            style: { textDecoration: 'none' },
-          }}
-        >
+        <a href="/" style={{ textDecoration: 'none' }}>
           {femmecubatorLogo}
-        </Link>
+        </a>
         <div className="insdmn">
           {getMenuButtons()}
           {getDrawerChoicesTwo()}
@@ -149,79 +132,23 @@ export default function Header() {
   };
 
   const displayMobile = () => {
-    const handleDrawerOpen = () => setState((prevState) => ({ ...prevState, drawerOpen: true }));
-    const handleDrawerClose = () => setState((prevState) => ({ ...prevState, drawerOpen: false }));
-
     return (
       <Toolbar>
-        {/* <IconButton
-          {...{
-            edge: 'start',
-            color: 'inherit',
-            'aria-label': 'menu',
-            'aria-haspopup': 'true',
-            onClick: handleDrawerOpen,
-          }}
-          className="menu_btn"
-        >
-          <Box component="img" src="/img/brgr_ic.svg" className="desk_img" />
-          <Box component="img" src="/img/close_ic.svg" className="mobile_img" />
-        </IconButton> */}
-
-        {/* <Drawer
-          {...{
-            anchor: 'left',
-            open: drawerOpen,
-            onClose: handleDrawerClose,
-          }}
-          className="as_drwr"
-        >
-          <div className={drawerContainer}>
-            {getDrawerChoices()}
-            {getDrawerChoicesTwo()}
-          </div>
-        </Drawer> */}
-
-        <Link
-          {...{
-            component: RouterLink,
-            to: '/',
-            color: 'inherit',
-            style: { textDecoration: 'none' },
-          }}
-        >
+        <a href="/" style={{ textDecoration: 'none' }}>
           {femmecubatorLogo}
-        </Link>
+        </a>
       </Toolbar>
     );
   };
 
-  const getDrawerChoices = () => {
-    return headersData.map(({ label, href }) => {
-      return (
-        <Link
-          {...{
-            component: RouterLink,
-            to: href,
-            color: 'inherit',
-            style: { textDecoration: 'none' },
-            key: label,
-          }}
-        >
-          <MenuItem>{label}</MenuItem>
-        </Link>
-      );
-    });
-  };
   const getDrawerChoicesTwo = () => {
     return headersDataTwo.map(({ label, href }) => {
       return (
         <a
-          {...{
-            href: href,
-            key: label,
-          }}
+          key={label}
+          href={href}
           target="_blank"
+          rel="noopener noreferrer"
           className="mbllnks"
         >
           {label}
@@ -236,20 +163,18 @@ export default function Header() {
     return headersData.map(({ label, href }) => {
       return (
         <Button
-          {...{
-            key: label,
-            color: 'inherit',
-            to: href,
-            component: NavLink,
-            className: menuButton,
-          }}
+          key={label}
+          color="inherit"
+          className={menuButton}
+          href={href}
         >
           {label}
         </Button>
       );
     });
   };
-  const [chain, setChain] = React.useState(chainID);
+  
+  const [chain, setChain] = React.useState(129399);
 
   useEffect(() => {
     setTheme(chain);
@@ -264,11 +189,12 @@ export default function Header() {
       document.body.classList.remove(item.theme);
     });
     const current = Chains.find((item) => item.id === value);
-    document.body.classList.add(current.theme);
+    if (current) {
+      document.body.classList.add(current.theme);
+    }
   };
-  const location = useLocation();
-  const { pathname } = location;
-  const splitLocation = pathname.split('/');
+  
+  const splitLocation = window.location.pathname.split('/');
 
   return (
     <>
@@ -306,21 +232,21 @@ export default function Header() {
             <Box className="ul_li_box">
               <ul>
                 <li>
-                  <NavLink to="/">Dashboard</NavLink>
+                  <a href="/">Dashboard</a>
                 </li>
               </ul>
             </Box>
             <Box className="ul_li_box">
               <ul>
                 <li>
-                  <NavLink to="/active-bets">Active Bets</NavLink>
+                  <a href="/active-bets">Active Bets</a>
                 </li>
               </ul>
             </Box>
             <Box className="ul_li_box">
               <ul>
                 <li>
-                  <NavLink to="/history-bets">Bets History</NavLink>
+                  <a href="/history-bets">Bets History</a>
                 </li>
               </ul>
             </Box>
@@ -350,23 +276,23 @@ export default function Header() {
             <Box className="ul_li_box">
               <ul>
                 <li>
-                  <NavLink to="/farm">LP Stake</NavLink>
+                  <a href="/farm">LP Stake</a>
                 </li>
               </ul>
             </Box>
             <Box className="ul_li_box">
               <ul>
                 <li>
-                  <NavLink to="/pool">Pool</NavLink>
+                  <a href="/pool">Pool</a>
                 </li>
               </ul>
             </Box>
           </Menu>
           <Box className={splitLocation[1] === 'faq' ? 'manu_img_paert_aj active' : 'manu_img_paert_aj'}>
-            <NavLink to="/faq" className="faq_l img_set_parnt_aj">
+            <a href="/faq" className="faq_l img_set_parnt_aj">
               <img src="/img/faq_ima_aj.svg" alt="" />
               Faq
-            </NavLink>
+            </a>
           </Box>
           <Box className="manu_img_paert_aj">
             <Button
@@ -402,7 +328,7 @@ export default function Header() {
             <Box className="ul_li_box">
               <ul>
                 <li>
-                  <NavLink to="/">Twitter</NavLink>
+                  <a href="/">Twitter</a>
                 </li>
               </ul>
             </Box>
@@ -440,17 +366,10 @@ export default function Header() {
             </Box>
 
             <Box className="hdrdvdr" />
-            <ConnectMenu />
-            {/* <Button className="def_btn_gray">
-                <span>Connect Wallet</span>
-                <Box component="img" src="/img/wallet_ic.svg" />
-            </Button> */}
-            {address && (
-              <Button className="def_btn">
-                <span>{accountEllipsis(address)}</span>
-                <Box component="img" src="/img/logout_ic.svg" />
-              </Button>
-            )}
+            <Button className="def_btn_gray">
+              <span>Connect Wallet</span>
+              <Box component="img" src="/img/wallet_ic.svg" />
+            </Button>
           </Box>
         </AppBar>
       </div>

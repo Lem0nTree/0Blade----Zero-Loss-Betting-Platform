@@ -1,0 +1,12 @@
+diff --git a/node_modules/webpack/lib/SourceMapDevToolPlugin.js b/node_modules/webpack/lib/SourceMapDevToolPlugin.js
+index 3018eb2..7967f98 100644
+--- a/node_modules/webpack/lib/SourceMapDevToolPlugin.js
++++ b/node_modules/webpack/lib/SourceMapDevToolPlugin.js
+@@ -72,6 +72,7 @@ const getTaskForFile = (file, asset, chunk, options, compilation) => {
+ 	if (!sourceMap || typeof source !== "string") return;
+ 	const context = compilation.options.context;
+ 	const modules = sourceMap.sources.map(source => {
++		if (!source) return source;
+ 		if (source.startsWith("webpack://")) {
+ 			source = absolutify(context, source.slice(10));
+ 		}

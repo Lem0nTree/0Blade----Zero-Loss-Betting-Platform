@@ -1,995 +1,451 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import { Link, useParams } from 'react-router-dom';
-import { Box, Typography, Grid, Checkbox, Button, Skeleton, CircularProgress } from '@mui/material';
+import React, { useState, useEffect } from 'react';
+import { Box, Grid, Typography, Button, TextField, Checkbox, IconButton, Slider } from '@mui/material';
+import { useParams } from 'react-router-dom';
 import MatchTabOne from '../component/matchtabs/MatchTabOne';
 import CoeffTab from '../component/matchtabs/CoeffTab';
-import Slider from '@mui/material/Slider';
-import { useDispatch, useSelector } from 'react-redux';
-import { IReduxState } from '../store/slices/state.interface';
-import { claim, IMatchSlice, loadMatchDetails, placeBet, revokeBet } from '../store/slices/matches-slice';
-import { getMultiplier, getSportName } from '../helpers';
-import { useWeb3Context } from '../hooks';
-import { error, warning } from '../store/slices/messages-slice';
-import { messages } from '../constants/messages';
-import { loadAccountBets, loadMatchBets } from '../store/slices/account-slice';
-import { getOptionDetails } from '../helpers/get-betOption';
-import classNames from 'classnames';
-import { ethers } from 'ethers';
-import { getAddresses } from '../constants';
-import { BetTestTokenContract } from '../abi';
-import Countdown from 'react-countdown';
-import { getTokenPrice } from '../helpers/token-price';
+import matchesData from '../data/matches.json';
+import CloseIcon from '@mui/icons-material/Close';
 
-const label = { inputProps: { 'aria-label': 'Checkbox demo' } };
 export default function Match() {
-  const currentTime = Date.now() / 1000;
-  const { eventId }: any = useParams();
-  const dispatch = useDispatch();
-  const { provider, address, chainID, checkWrongNetwork, connect } = useWeb3Context();
-  const match = useSelector<IReduxState, IMatchSlice>((state) => state.match);
-  const [selectedBet, setSelectedBet] = useState<any>([]);
-  const [activeBets, setActiveBets] = useState<any>([]);
-  const [allowance, setAllowance] = useState<any>(false);
-  const [loading, setLoading] = useState<any>(false);
-
-  const addresses = getAddresses(chainID);
-  const signer = provider.getSigner();
-
-  const matchDetails = useSelector<IReduxState, any>((state) => {
-    return state.match.matches.filter((match: any) => match.matchID == eventId)[0];
-  });
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
-  // let tokenADDRESS = 'address.' + matchDetails.farmtoken;
-  const tokenContract = new ethers.Contract(addresses[matchDetails.farmtoken], BetTestTokenContract, signer);
-
-  const loadApp = useCallback(() => {
-    match.matches.map((match: any, index: number) => {
-      dispatch(
-        loadMatchDetails({
-          networkID: chainID,
-          provider: provider,
-          match: match,
-          index,
-        })
-      );
-      dispatch(
-        loadAccountBets({
-          address,
-          provider: provider,
-          match: matchDetails,
-          index,
-        })
-      );
-    });
-  }, []);
+  const { eventId } = useParams<{ eventId: string }>();
+  const [selectedBets, setSelectedBets] = useState<any[]>([
+    // Mock selected bets
+    {
+      id: 1,
+      matchName: 'Barcelona vs Real Madrid',
+      betType: 'Match Result',
+      outcome: 'Barcelona',
+      multiplier: 2.5,
+      checked: true,
+    },
+    {
+      id: 2,
+      matchName: 'Barcelona vs Real Madrid',
+      betType: 'Over/Under',
+      outcome: 'Over 2.5',
+      multiplier: 1.8,
+      checked: true,
+    },
+  ]);
+  const [betAmount, setBetAmount] = useState('100');
+  const [timePeriod, setTimePeriod] = useState(6); // 2, 6, 12, or 24 months
+  const [matchDetails, setMatchDetails] = useState<any>(null);
 
   useEffect(() => {
-    const updateData = async () => {
-      if (matchDetails.index) {
-        await dispatch(
-          loadMatchDetails({
-            networkID: chainID,
-            provider: provider,
-            match: matchDetails,
-            index: matchDetails.index,
-          })
-        );
-      } else {
-        loadApp();
-      }
-    };
-    updateData();
-  }, []);
-
-  useEffect(() => {
-    const updateData = async () => {
-      if (address) {
-        const addresses = getAddresses(chainID);
-
-        const tokenContract = new ethers.Contract(addresses[matchDetails.farmtoken], BetTestTokenContract, provider);
-        const allowanceData = Number(await tokenContract.allowance(address, matchDetails.bettingcontract));
-        if (allowanceData) {
-          setAllowance(true);
-        }
-        await dispatch(
-          loadMatchBets({
-            address,
-            provider: provider,
-            match: matchDetails,
-          })
-        );
-      }
-    };
-    updateData();
-  }, [address]);
-
-  const bets = useSelector<IReduxState, any>((state) => {
-    const activeBetsList = state.account.accountbets;
-
-    let activeBetArray = [];
-    if (address) {
-      Object.entries(activeBetsList).map((activeBet) => {
-        if (Object.entries(activeBet[1]).length) {
-          Object.entries(activeBet[1]).map((bet) => {
-            if (bet[1].match.matchID == eventId) {
-              activeBetArray.push(bet[1]);
-            }
-          });
-        }
-      });
-      const finalArr = activeBetArray.sort(function (a, b) {
-        return a.betTime - b.betTime;
-      });
-
-      return finalArr;
+    // Find match by ID
+    const match = matchesData.find((m) => m.matchID === eventId || m.matchID === '1');
+    if (match) {
+      setMatchDetails(match);
     } else {
-      return [];
+      // Default to first match if not found
+      setMatchDetails(matchesData[0]);
     }
-  });
+  }, [eventId]);
 
-  const accountBalance = useSelector<IReduxState, any>((state) => {
-    return state.account.balances;
-  });
-  const [position, setPosition] = React.useState(0);
-  const [positionValue, setPositionValue] = React.useState(0);
-  const getSelectedOption = async (value: any) => {
-    setSelectedBet([...value]);
+  if (!matchDetails) {
+    return <Box>Loading...</Box>;
+  }
+
+  const handleBetSelection = (betData: any) => {
+    // Add new bet to selected bets
+    const newBet = {
+      id: Date.now(),
+      matchName: matchDetails.matchname,
+      betType: betData[2] || 'Bet',
+      outcome: betData[1] || 'Outcome',
+      multiplier: parseFloat(betData[0]) || 2.0,
+      checked: true,
+    };
+    setSelectedBets([...selectedBets, newBet]);
   };
 
-  const calculateBetAmount = (percent) => {
-    setPositionValue(percent);
-    setPosition(Number(((accountBalance[matchDetails.farmtoken] * percent) / 100).toFixed(4)));
+  const handleRemoveBet = (betId: number) => {
+    setSelectedBets(selectedBets.filter((bet) => bet.id !== betId));
   };
 
-  const changeValue = (txtValue) => {
-    const value = parseFloat(Number(txtValue).toFixed(4));
-    setPosition(value);
-    setPositionValue((value * 100) / accountBalance[matchDetails.farmtoken]);
+  const handleToggleBet = (betId: number) => {
+    setSelectedBets(
+      selectedBets.map((bet) =>
+        bet.id === betId ? { ...bet, checked: !bet.checked } : bet
+      )
+    );
   };
 
-  const approvetx = async () => {
-    try {
-      setLoading(true);
-      const approvetx = await tokenContract.approve(
-        matchDetails.bettingcontract,
-        '115792089237316195423570985008687907853269984665640564039457584007913129639935'
-      );
-      await approvetx.wait();
-      setLoading(false);
-      setAllowance(true);
-    } catch (e) {
-      setLoading(false);
-      // dispatch(error({ text: e }));
+  const handlePlaceBet = () => {
+    const activeBets = selectedBets.filter((bet) => bet.checked);
+    const amount = parseFloat(betAmount) || 0;
+    if (activeBets.length > 0 && amount > 0) {
+      // UI only - no actual betting logic
+      alert(`Bet placed: ${activeBets.length} bet(s) - Amount: ${amount} - Time Period: ${getTimePeriodLabel(timePeriod)}`);
     }
   };
 
-  const placeBetCall = async () => {
-    if (await checkWrongNetwork()) return;
-    if (position < matchDetails.minimumBet) {
-      dispatch(
-        warning({
-          text: messages.minimum_bet(matchDetails.minimumBet, matchDetails.farmtoken),
-        })
-      );
-      return;
+  const handleTimePeriodChange = (newValue: number | number[]) => {
+    const value = Array.isArray(newValue) ? newValue[0] : newValue;
+    // Snap to nearest valid value: 2, 6, 12, or 24
+    const validValues = [2, 6, 12, 24];
+    const closest = validValues.reduce((prev, curr) => 
+      Math.abs(curr - value) < Math.abs(prev - value) ? curr : prev
+    );
+    setTimePeriod(closest);
+  };
+
+  // Calculate potential winning
+  const calculatePotentialWinning = () => {
+    const activeBets = selectedBets.filter((bet) => bet.checked);
+    const amount = parseFloat(betAmount) || 0;
+    if (activeBets.length === 0 || amount === 0) return 0;
+    
+    // For single bet, use its multiplier
+    if (activeBets.length === 1) {
+      return amount * activeBets[0].multiplier;
     }
+    
+    // For multiple bets (accumulator), multiply all multipliers
+    const totalMultiplier = activeBets.reduce((acc, bet) => acc * bet.multiplier, 1);
+    return amount * totalMultiplier;
+  };
 
-    if (!address) {
-      dispatch(warning({ text: messages.please_connect_wallet }));
-      return;
+  // Get time period label
+  const getTimePeriodLabel = (months: number) => {
+    return `${months} ${months === 1 ? 'Month' : 'Months'}`;
+  };
+
+  // Calculate betting power based on time period
+  const calculateBettingPower = () => {
+    // Mock calculation - could be based on time period and amount
+    const amount = parseFloat(betAmount) || 0;
+    // Example: longer periods might give more power
+    const powerMultiplier = timePeriod === 2 ? 1.0 : timePeriod === 6 ? 1.2 : timePeriod === 12 ? 1.5 : 2.0;
+    return (amount * powerMultiplier).toFixed(2);
+  };
+
+  // Helper function to get team logo
+  const getTeamLogo = (teamName: string, isFirst: boolean) => {
+    const teamLower = teamName.toLowerCase();
+    if (teamLower.includes('barcelona')) {
+      return isFirst ? 'img/baclona_logo.svg' : 'img/baclona_logo.svg';
     }
-
-    if (!selectedBet[0]) {
-      dispatch(warning({ text: messages.select_bet }));
-      return;
+    if (teamLower.includes('real madrid')) {
+      return 'img/real_medrid.svg';
     }
-    setLoading(true);
-    await dispatch(
-      placeBet({
-        amount: (position * 1e18).toString(),
-        outCome: selectedBet[0],
-        match: matchDetails,
-        networkID: chainID,
-        provider,
-        address,
-      })
-    );
-
-    await dispatch(
-      loadMatchBets({
-        address,
-        provider: provider,
-        match: matchDetails,
-      })
-    );
-    setLoading(false);
+    if (teamLower.includes('chelsea')) {
+      return 'img/chelsea_logo.svg';
+    }
+    if (teamLower.includes('manchester')) {
+      return 'img/manchester_logo.svg';
+    }
+    if (teamLower.includes('liverpool')) {
+      return 'img/liverpool_logo.svg';
+    }
+    if (teamLower.includes('psg')) {
+      return 'img/psg_logo.svg';
+    }
+    if (teamLower.includes('sevilla')) {
+      return 'img/sevilla_logo.svg';
+    }
+    // Default to participant image
+    return `img/participants/${teamName}_${matchDetails.matchcategory}.png`;
   };
 
-  const claimBet = async (match, betId) => {
-    await dispatch(
-      claim({
-        match,
-        betId,
-        provider,
-      })
-    );
+  const getLeagueName = (category: string) => {
+    const leagues: { [key: string]: string } = {
+      '0': 'La Liga',
+      '1': 'UFC Championship',
+      '3': 'ATP Tour',
+    };
+    return leagues[category] || 'League Match';
   };
 
-  const renderer = ({ days, hours, minutes, seconds, completed }: any) => {
-    // Render a countdown
-    return (
-      <span>
-        {hours + days * 24}:{minutes}:{seconds}
-      </span>
-    );
+  const formatMatchDate = (timestamp: number) => {
+    const date = new Date(timestamp * 1000);
+    return date.toLocaleDateString('en-US', { 
+      month: 'long', 
+      day: 'numeric', 
+      year: 'numeric' 
+    });
   };
 
-  const rewardstakeratio = matchDetails.isLP ? matchDetails.lpPrice / getTokenPrice(matchDetails.rewardtoken) : 1;
-
-  const revokeBetCall = async (betId) => {
-    // if (await checkWrongNetwork()) return;
-    // if (!address) {
-    //   alert('PLEASE CONNECT WALLET FIRST');
-    //   // dispatch(warning({ text: messages.please_connect_wallet }));
-    //   return;
-    // }
-    await dispatch(
-      revokeBet({
-        match: matchDetails,
-        betId,
-        provider,
-      })
-    );
-    await dispatch(
-      loadMatchBets({
-        address,
-        provider: provider,
-        match: matchDetails,
-      })
-    );
-  };
   return (
     <>
-      <Box className="match_page_main">
-        <Box className="home_match_prnt">
-          <Link to="/">
-            <Box component="img" src="../img/home_logo.svg" alt="" />
-            <span>Home / </span>
-          </Link>
-          <Typography>&nbsp;&nbsp;Matches</Typography>
-        </Box>
-        <Grid container spacing={2}>
-          <Grid item xs={12} md={8}>
+      <Grid container spacing={2}>
+        <Grid item xs={12} md={8}>
+          <Box className="pdding0_15_respncv">
             <Box className="spain_primira_box">
               <Box className="spain_primira_head">
-                <Typography>{getSportName(matchDetails.matchcategory)}</Typography>
+                <Typography component="p">{getLeagueName(matchDetails.matchcategory)}</Typography>
                 <Typography component="h4">{matchDetails.matchname}</Typography>
               </Box>
-              <Grid container spacing={2}>
-                <Grid item xs={3} sm={4}>
-                  <Box className="match_logo_bx">
-                    <Box
-                      component="img"
-                      src={'../img/participants/' + matchDetails.matchpartecipant[0] + '_' + matchDetails.matchcategory + '.png'}
-                      alt=""
-                    />
-                  </Box>
-                </Grid>
-                <Grid item xs={6} sm={4}>
-                  <Box className="match_logo_bx">
-                    <Typography>
-                      {currentTime < matchDetails.startTime
-                        ? 'Bets Open in'
-                        : matchDetails.finalScore == ''
-                        ? 'Total Value Bet'
-                        : 'Final Score'}
-                    </Typography>
-                    <Box className="cro_flex">
-                      {/* <Box component="img" src="img/corrency_02.svg" alt="" className='corrency_02'/> */}
-                      <Typography component="h5">
-                        <span>
-                          {currentTime < matchDetails.startTime ? (
-                            <Countdown date={matchDetails.startTime * 1000} renderer={renderer} />
-                          ) : matchDetails ? (
-                            matchDetails.finalScore == '' ? (
-                              (matchDetails.totalBettedAmount + matchDetails.treasuryFund).toFixed(0)
-                            ) : (
-                              matchDetails.finalScore
-                            )
-                          ) : (
-                            <Skeleton variant="text" />
-                          )}
-                        </span>{' '}
-                        <b>{matchDetails.finalScore == '' && currentTime > matchDetails.startTime ? matchDetails.farmtoken : ''}</b>
-                      </Typography>
-                    </Box>
-                  </Box>
-                </Grid>
-                <Grid item xs={3} sm={4}>
-                  <Box className="match_logo_bx">
-                    <Box
-                      component="img"
-                      src={'../img/participants/' + matchDetails.matchpartecipant[1] + '_' + matchDetails.matchcategory + '.png'}
-                      alt=""
-                    />
-                  </Box>
-                </Grid>
-              </Grid>
+              <Box className="match_logo_bx">
+                <Box className="volkski_img_prnt" style={{ marginBottom: '10px' }}>
+                  <Box 
+                    component="img" 
+                    src={getTeamLogo(matchDetails.matchpartecipant[0], true)} 
+                    alt="" 
+                    onError={(e: any) => {
+                      e.target.src = `img/participants/${matchDetails.matchpartecipant[0]}_${matchDetails.matchcategory}.png`;
+                    }}
+                  />
+                </Box>
+                <Typography component="p">{matchDetails.matchpartecipant[0]}</Typography>
+                <Box className="cro_flex" style={{ marginTop: '15px', marginBottom: '15px' }}>
+                  <Box component="img" src="img/cronosports.svg" alt="" />
+                  <Typography component="h5">
+                    <span>VS</span>
+                  </Typography>
+                  <Box component="img" src="img/cronosports.svg" alt="" />
+                </Box>
+                <Box className="korianzombi_img_prnt" style={{ marginTop: '10px' }}>
+                  <Box 
+                    component="img" 
+                    src={getTeamLogo(matchDetails.matchpartecipant[1], false)} 
+                    alt="" 
+                    onError={(e: any) => {
+                      e.target.src = `img/participants/${matchDetails.matchpartecipant[1]}_${matchDetails.matchcategory}.png`;
+                    }}
+                  />
+                </Box>
+                <Typography component="p">{matchDetails.matchpartecipant[1]}</Typography>
+              </Box>
+            </Box>
+
+            <Box className="match_tabs_section" style={{ marginTop: '30px' }}>
               <MatchTabOne matchDetails={matchDetails} />
             </Box>
-            <Box className="MobileBox">
-              {/* relative bets start*/}
 
-              <Box className="pdding0_15_respncv">
-                <Box className="game_bet_bx">
-                  <Typography component="h2">Game Bets</Typography>
-                  <Typography className="game_bat_sub_p">Your bets relative to this match</Typography>
-                  {bets && bets.length > 0 ? (
-                    <Box className="activ_bets_boxes">
-                      {bets &&
-                        bets.map((bet) => {
-                          if (!bet.betRevoked && !bet.betSettled) {
-                            return (
-                              <Box className="actv_box01" style={{ marginTop: '5px' }}>
-                                <Box className="logo_text_prnt">
-                                  <Box className="logo_left_prnt">
-                                    <Box className="volkski_img_prnt">
-                                      <Box
-                                        component="img"
-                                        src={
-                                          '../img/participants/' +
-                                          matchDetails.matchpartecipant[0] +
-                                          '_' +
-                                          matchDetails.matchcategory +
-                                          '.png'
-                                        }
-                                        alt=""
-                                      />
-                                    </Box>
-                                    <Box className="korianzombi_img_prnt">
-                                      <Box
-                                        component="img"
-                                        src={
-                                          '../img/participants/' +
-                                          matchDetails.matchpartecipant[1] +
-                                          '_' +
-                                          matchDetails.matchcategory +
-                                          '.png'
-                                        }
-                                        alt=""
-                                      />
-                                    </Box>
-                                    <Typography>
-                                      {matchDetails.matchpartecipant[0]}
-                                      <br />
-                                      {matchDetails.matchpartecipant[1]}
-                                    </Typography>
-                                  </Box>
-                                  <Box className="logo_right_prnt">
-                                    {/* <Typography></Typography> */}
-                                    <Button className="revokebutton" onClick={() => revokeBetCall(bet.betID)}>
-                                      X
-                                    </Button>
-                                  </Box>
-                                </Box>
-                                <Box className="topwin_row">
-                                  <Typography>
-                                    {/* <span>To win -</span> */}
-                                    {getOptionDetails(bet.selectedOutCome, matchDetails.matchcategory).label}
-                                  </Typography>
-                                  <Typography component="h6">
-                                    {getOptionDetails(bet.selectedOutCome, matchDetails.matchcategory).option.name}
-                                  </Typography>
-                                  <Typography component="h6" style={{ width: '95px' }}>
-                                    {bet.amount.toFixed(4)} {matchDetails.farmtoken}
-                                  </Typography>
-                                  {bet.resultDeclared && !bet.betRevoked && !bet.isWinner ? (
-                                    ''
-                                  ) : (
-                                    <Typography component="h4">
-                                      x{' '}
-                                      {bet.resultDeclared &&
-                                      currentTime > bet.match.lockingPeriod + bet.match.bettingPeriod + bet.match.startTime
-                                        ? //? Number(bet.resultDeclared).toFixed(2)
-                                          Number((bet.amount + bet.claimableReward) / bet.amount).toFixed(2)
-                                        : Number(
-                                            getMultiplier(
-                                              bet.amount,
-                                              bet.match.bettedAmountCalculation[bet.selectedOutCome],
-                                              bet.match.totalBettedAmount,
-                                              bet.match.treasuryFund,
-                                              bet.match.farmapy,
-                                              bet.match.lockingPeriod
-                                            )
-                                          ).toFixed(2)}
-                                      {/* {getMultiplier(
-                                        bet.amount,
-                                        matchDetails.bettedAmountCalculation[
-                                          bet.selectedOutCome - 1
-                                        ],
-                                        matchDetails.totalBettedAmount,
-                                        matchDetails.treasuryFund,
-                                        matchDetails.farmapy,
-                                        matchDetails.lockingPeriod
-                                      )} */}
-                                    </Typography>
-                                  )}
-                                </Box>
-                                <Button
-                                  className={
-                                    bet.resultDeclared &&
-                                    currentTime > bet.match.lockingPeriod + bet.match.bettingPeriod + bet.match.startTime
-                                      ? bet.betRevoked
-                                        ? 'table_btns yellow_btn_clr'
-                                        : bet.isWinner
-                                        ? bet.betSettled
-                                          ? 'table_btns yellow_btn_clr'
-                                          : 'table_btns green_btn_clr'
-                                        : bet.betSettled
-                                        ? 'table_btns yellow_btn_clr'
-                                        : 'table_btns red_btn_clr'
-                                      : 'table_btns yellow_btn_clr'
-                                  }
-                                  onClick={() => claimBet(bet.match, bet.betID)}
-                                  disabled={
-                                    bet.betRevoked ||
-                                    bet.betSettled ||
-                                    !bet.resultDeclared ||
-                                    currentTime < bet.match.lockingPeriod + bet.match.bettingPeriod + bet.match.startTime
-                                  }
-                                >
-                                  {bet.resultDeclared &&
-                                  currentTime > bet.match.lockingPeriod + bet.match.bettingPeriod + bet.match.startTime
-                                    ? bet.betRevoked
-                                      ? 'Revoked Bet'
-                                      : bet.isWinner
-                                      ? bet.betSettled
-                                        ? 'Completed'
-                                        : 'Claim'
-                                      : bet.betSettled
-                                      ? 'Completed'
-                                      : 'Withdraw'
-                                    : ''}
+            <Box className="coefficients_box">
+              <Typography component="h3" style={{ padding: '0 30px', marginBottom: '20px' }}>
+                Betting Options
+              </Typography>
+              <CoeffTab matchDetails={matchDetails} sendToMatch={handleBetSelection} />
+            </Box>
+          </Box>
+        </Grid>
 
-                                  {/* {bet.isWinner && bet.resultDeclared
-              ? !bet.betSettled && !bet.betRevoked
-                ? 'Claim Prize'
-                : 'Already Claimed'
-              : bet.betRevoked
-              ? 'Bet Revoked'
-              : bet.resultDeclared && !bet.isWinner
-              ? 'Wait for Result'
-              : ' Lost Bet'} */}
-                                </Button>
-                              </Box>
-                            );
-                          }
-                        })}
-                    </Box>
-                  ) : (
-                    <Box className="nobet_bx">
-                      <Box component="img" src="img/allert_ic.svg" alt="" />
-                      <Typography>No bets were placed for this match</Typography>
-                    </Box>
-                  )}
-                </Box>
+        <Grid item xs={12} md={4}>
+          <Box className="pdding0_15_respncv">
+            <Box className="single_bet_box" style={{ marginBottom: '20px' }}>
+              <Box className="head_txt_clean_img" style={{ marginBottom: '20px' }}>
+                <Typography component="h3">Bet Slip</Typography>
+                <Box component="img" src="img/cleaner_ic.svg" alt="" />
               </Box>
 
-              {/* relative bets start*/}
-
-              {selectedBet && selectedBet.length > 0 && (
-                <Box className="single_bet_box">
-                  <Box className="head_txt_clean_img">
-                    <Typography component="h3">Single Bet</Typography>
-                    <Box component="img" src="img/cleaner_ic.svg" alt="" />
+              {selectedBets.length > 0 ? (
+                <>
+                  <Box style={{ marginBottom: '20px' }}>
+                    {selectedBets.map((bet) => (
+                      <Box key={bet.id} className="single_bet_inn01" style={{ marginBottom: '15px' }}>
+                        <Box className="check_text_flex_box">
+                          <Checkbox
+                            checked={bet.checked}
+                            onChange={() => handleToggleBet(bet.id)}
+                            sx={{
+                              color: 'rgba(0, 213, 125, 1)',
+                              '&.Mui-checked': {
+                                color: 'rgba(0, 213, 125, 1)',
+                              },
+                            }}
+                          />
+                          <Typography component="p">{bet.matchName}</Typography>
+                          <IconButton
+                            onClick={() => handleRemoveBet(bet.id)}
+                            sx={{ minWidth: 0, padding: 0 }}
+                          >
+                            <CloseIcon sx={{ fontSize: 18, color: '#5d6673' }} />
+                          </IconButton>
+                        </Box>
+                        <Box className="outcom_flex_bx">
+                          <Box className="outcom_left">
+                            <Typography component="h5">
+                              {bet.betType} <span>• {bet.outcome}</span>
+                            </Typography>
+                          </Box>
+                          <Typography component="h6">{bet.multiplier.toFixed(2)}x</Typography>
+                        </Box>
+                      </Box>
+                    ))}
                   </Box>
-                  <Box className="single_bet_inn01">
-                    <Box className="check_text_flex_box">
-                      <Checkbox {...label} defaultChecked />
-                      <Typography>{matchDetails.matchname}</Typography>
-                      <Button>
-                        <Box component="img" src="../img/close_ic.svg" />
-                      </Button>
+
+                  <Box className="single_bet_bttm_box">
+                    <Box style={{ paddingTop: '15px', paddingBottom: '15px', borderBottom: '1px solid #222831', marginBottom: '15px' }}>
+                      <Typography component="h5" style={{ marginBottom: '15px', fontWeight: 600, fontSize: '18px', lineHeight: '22px', color: '#ffffff' }}>
+                        Bet Amount
+                      </Typography>
+                      <TextField
+                        fullWidth
+                        type="number"
+                        value={betAmount}
+                        onChange={(e) => setBetAmount(e.target.value)}
+                        InputProps={{
+                          startAdornment: (
+                            <Box style={{ display: 'flex', alignItems: 'center', marginRight: '12px' }}>
+                              <Box
+                                component="img"
+                                src={`img/tokens/${(matchDetails?.farmtoken || 'FRAX').toLowerCase()}.svg`}
+                                alt=""
+                                onError={(e: any) => {
+                                  e.target.src = 'img/frax_ic.svg';
+                                }}
+                                style={{ width: '24px', height: '24px', marginRight: '8px' }}
+                              />
+                              <Typography component="span" style={{ color: '#ffffff', fontWeight: 600, fontSize: '14px' }}>
+                                {matchDetails?.farmtoken || 'FRAX'}
+                              </Typography>
+                            </Box>
+                          ),
+                        }}
+                        sx={{
+                          '& .MuiOutlinedInput-root': {
+                            backgroundColor: '#282e38',
+                            borderRadius: '8px',
+                            color: '#ffffff',
+                            '& fieldset': {
+                              borderColor: '#323a46',
+                            },
+                            '&:hover fieldset': {
+                              borderColor: '#00d57d',
+                            },
+                            '&.Mui-focused fieldset': {
+                              borderColor: '#00d57d',
+                            },
+                          },
+                          '& .MuiInputBase-input': {
+                            color: '#ffffff',
+                            padding: '12px 14px',
+                          },
+                        }}
+                      />
                     </Box>
-                    <Box className="outcom_flex_bx">
-                      <Box className="outcom_left">
-                        <Typography component="h5">{selectedBet[1]}</Typography>
-                        <Typography component="h5">
-                          <span>{selectedBet[3]}</span>
+
+                    <Box className="slidr_flex_box">
+                      <Box className="num_flex">
+                        <Typography component="h5">Time Period</Typography>
+                        <Typography component="h5">{getTimePeriodLabel(timePeriod)}</Typography>
+                      </Box>
+                      <Slider
+                        value={timePeriod}
+                        onChange={(e, newValue) => handleTimePeriodChange(newValue)}
+                        min={2}
+                        max={24}
+                        step={1}
+                        marks={[
+                          { value: 2, label: '2M' },
+                          { value: 6, label: '6M' },
+                          { value: 12, label: '12M' },
+                          { value: 24, label: '24M' },
+                        ]}
+                        sx={{
+                          marginTop: '15px',
+                          '& .MuiSlider-rail': {
+                            background: '#222831',
+                          },
+                          '& .MuiSlider-track': {
+                            background: 'rgba(0, 213, 125, 0.2)',
+                            border: 'none',
+                          },
+                          '& .MuiSlider-thumb': {
+                            width: 32,
+                            height: 32,
+                            background: '#00d57d',
+                            boxShadow: 'none',
+                          },
+                          '& .MuiSlider-markLabel': {
+                            color: '#5d6673',
+                            fontSize: '12px',
+                            fontWeight: 600,
+                          },
+                          '& .MuiSlider-mark': {
+                            backgroundColor: '#5d6673',
+                            width: '4px',
+                            height: '4px',
+                            borderRadius: '50%',
+                          },
+                          '& .MuiSlider-markActive': {
+                            backgroundColor: '#00d57d',
+                          },
+                        }}
+                      />
+                    </Box>
+
+                    <Box className="bet_bttm_cnter_bx">
+                      <Box className="bttm_cnter_row">
+                        <Typography component="p">Potential Winning</Typography>
+                        <Box style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <Typography component="p" style={{ color: '#00d57d' }}>
+                            {calculatePotentialWinning().toFixed(2)} {matchDetails?.farmtoken || 'FRAX'}
+                          </Typography>
+                          <Box
+                            component="img"
+                            src={`img/tokens/${(matchDetails?.farmtoken || 'FRAX').toLowerCase()}.svg`}
+                            alt=""
+                            onError={(e: any) => {
+                              e.target.src = 'img/frax_ic.svg';
+                            }}
+                          />
+                        </Box>
+                      </Box>
+                      <Box className="bttm_cnter_row">
+                        <Typography component="p">Betting Power</Typography>
+                        <Typography component="p">{calculateBettingPower()} {matchDetails?.farmtoken || 'FRAX'}</Typography>
+                      </Box>
+                      <Box className="bttm_cnter_row">
+                        <Typography component="p">Payout</Typography>
+                        <Typography component="p">
+                          {parseFloat(betAmount) > 0 
+                            ? (((calculatePotentialWinning() - parseFloat(betAmount)) / parseFloat(betAmount)) * 100).toFixed(1)
+                            : '0.0'}%
                         </Typography>
                       </Box>
-                      {/* matchDetails.bettedAmountCalculation[selectedBet[0]]
-                          ? matchDetails.bettedAmountCalculation[selectedBet[0]]
-                          : 1) */}
-                      <Typography component="h6">
-                        x
-                        {selectedBet &&
-                          getMultiplier(
-                            position,
-                            matchDetails.bettedAmountCalculation[selectedBet[0] - 1],
-                            matchDetails.totalBettedAmount,
-                            matchDetails.treasuryFund,
-                            matchDetails.farmapy,
-                            matchDetails.lockingPeriod
-                          )}
-                        {/* {(
-                        ((position /
-                          (position +
-                            matchDetails.bettedAmountCalculation[
-                              selectedBet[0] - 1
-                            ])) *
-                          (matchDetails.totalBettedAmount +
-                            matchDetails.treasuryFund +
-                            position) *
-                          (matchDetails.farmapy / 365) *
-                          (matchDetails.lockingPeriod / 86400) +
-                          position) /
-                        position
-                      ).toFixed(2)} */}
-                      </Typography>
+                      <Button
+                        fullWidth
+                        onClick={handlePlaceBet}
+                        disabled={selectedBets.filter((b) => b.checked).length === 0 || parseFloat(betAmount) === 0}
+                        sx={{
+                          height: '48px',
+                          background: '#00d57d',
+                          borderRadius: '8px',
+                          fontWeight: 600,
+                          fontSize: '14px',
+                          lineHeight: '18px',
+                          color: '#ffffff',
+                          marginTop: '15px',
+                          '&:disabled': {
+                            background: '#5d6673',
+                            color: '#ffffff',
+                          },
+                        }}
+                      >
+                        Place Bet
+                      </Button>
                     </Box>
-                  </Box>
-                </Box>
-              )}
-              {matchDetails.startTime + matchDetails.bettingPeriod > currentTime && (
-                <Box className="single_bet_bttm_box">
-                  <Box className="slidr_flex_box">
-                    {/* <Slider
-                    defaultValue={50}
-                    aria-label='Default'
-                    valueLabelDisplay='auto'
-                    onChange={(_, value) => setPosition(value as number)}
-                    value={position}
-                    min={matchDetails.minimumBet}
-                    max={accountBalance[matchDetails.farmtoken]}
-                  /> */}
-                    <Slider
-                      defaultValue={1}
-                      aria-label="Default"
-                      valueLabelDisplay="auto"
-                      valueLabelFormat={positionValue + ' %'}
-                      onChange={(_, value) => calculateBetAmount(value as number)}
-                      value={positionValue}
-                      min={0}
-                      max={100}
-                    />
-                    <Box className="num_flex">
-                      <Typography component="h5">
-                        {/* {matchDetails.minimumBet} {matchDetails.farmtoken} */}
-                        0%
-                      </Typography>
-                      <Typography component="h5">
-                        100%
-                        {/* {accountBalance[matchDetails.farmtoken] &&
-                        accountBalance[matchDetails.farmtoken].slice(
-                          0,
-                          accountBalance[matchDetails.farmtoken].indexOf('.') +
-                            2
-                        )}{' '}
-                      {matchDetails.farmtoken} */}
-                      </Typography>
-                    </Box>
-                  </Box>
 
-                  <Box className="bet_bttm_cnter_bx">
-                    <Box className="bttm_cnter_row">
-                      <Typography>Bet Amount:</Typography>
-                      <Typography className="input_box_window">
-                        {' '}
-                        <input className="inpt_box" type="number" value={position} onChange={(e) => changeValue(e.target.value)} />
-                        {matchDetails.farmtoken}
-                        {/* {position.toFixed(5)} {matchDetails.farmtoken} */}
-                      </Typography>
-                    </Box>
-                    <Box className="bttm_cnter_row">
-                      <Typography>Bet Value:</Typography>
-                      <Typography>
-                        {matchDetails.isLP
-                          ? (position * matchDetails.lpPrice).toFixed(2)
-                          : (position * getTokenPrice(matchDetails.rewardtoken)).toFixed(2)}
-                        &nbsp;$
-                        {/* {position.toFixed(5)} {matchDetails.farmtoken} */}
-                      </Typography>
-                    </Box>
-                    <Box className="bttm_cnter_row">
-                      <Typography>Possible winning:</Typography>
-                      <Typography>
-                        {' '}
-                        {matchDetails.bettedAmountCalculation && position && selectedBet[0]
-                          ? (
-                              (((position / (position + matchDetails.bettedAmountCalculation[selectedBet[0] - 1])) *
-                                (((matchDetails.totalBettedAmount + matchDetails.treasuryFund + position) *
-                                  (matchDetails.farmapy / 365) *
-                                  (matchDetails.lockingPeriod / 86400)) /
-                                  100)) /
-                                2.5 +
-                                position) *
-                              rewardstakeratio
-                            ).toFixed(2)
-                          : 0}{' '}
-                        {matchDetails.isLP ? matchDetails.rewardtoken : matchDetails.farmtoken}
-                      </Typography>
-                    </Box>
-                    <Box className="bttm_cnter_row">
-                      <Typography>Cryptocurrency:</Typography>
-                      <Box component="img" src={'../img/tokens/' + matchDetails.farmtoken + '.svg'} alt="" />
-                    </Box>
-                    <Button onClick={() => (address ? (allowance ? placeBetCall() : approvetx()) : connect())}>
-                      {!loading ? (
-                        address ? (
-                          allowance ? (
-                            'Place a Bet'
-                          ) : (
-                            'Approve'
-                          )
-                        ) : (
-                          'Connect Wallet'
-                        )
-                      ) : (
-                        <CircularProgress size={20} color="inherit" />
-                      )}
-                    </Button>
-                  </Box>
-
-                  <Box className="bet_bttm_last_bx">
-                    <Box className="allert_bx">
-                      <Box component="img" src="img/allert_ic.svg" alt="" />
-                      <Typography>In case your bet is lost, the amount you set will be returned to your balance.</Typography>
-                    </Box>
-                    <Box className="allert_bx2">
-                      <Box component="img" src="img/allert_ic.svg" alt="" />
-                      <Typography>
-                        Multipliers depend a lot on several external factors, such as apr stability, total number of players and total
-                        number of winners. These values are to be intended as a maximum payout.
-                      </Typography>
+                    <Box className="bet_bttm_last_bx">
+                      <Box className="allert_bx">
+                        <Box component="img" src="img/i_140_img_ppup.svg" alt="" />
+                        <Typography component="p">
+                          In case of a lost bet, you will receive back your principal amount that can be claimed back on Pendle at the end of the selected time period.
+                        </Typography>
+                      </Box>
+                      <Box className="allert_bx2">
+                        <Box component="img" src="img/allert_ic.svg" alt="" />
+                        <Typography component="p">
+                          Make sure you have enough balance in your wallet to place this bet.
+                        </Typography>
+                      </Box>
                     </Box>
                   </Box>
+                </>
+              ) : (
+                <Box className="nobet_bx">
+                  <Box component="img" src="img/allert_ic.svg" alt="" />
+                  <Typography component="p">No bets selected. Select a bet option to add to your bet slip.</Typography>
                 </Box>
               )}
             </Box>
-            <Box className="coefficients_box">
-              <Typography component="h3">Bet Options</Typography>
-              <Box className="coef_tab_prnt">
-                <CoeffTab matchDetails={matchDetails} sendToMatch={getSelectedOption} />
-              </Box>
-            </Box>
-          </Grid>
-
-          <Grid item xs={12} md={4} className="MobileBox2">
-            {/* relative bets start*/}
-
-            <Box className="pdding0_15_respncv">
-              <Box className="game_bet_bx">
-                <Typography component="h2">Game Bets</Typography>
-                <Typography className="game_bat_sub_p">Your bets relative to this match</Typography>
-                {bets && bets.length > 0 ? (
-                  <Box className="activ_bets_boxes">
-                    {bets &&
-                      bets.map((bet) => {
-                        if (!bet.betRevoked && !bet.betSettled) {
-                          return (
-                            <Box className="actv_box01" style={{ marginTop: '5px' }}>
-                              <Box className="logo_text_prnt">
-                                <Box className="logo_left_prnt">
-                                  <Box className="volkski_img_prnt">
-                                    <Box
-                                      component="img"
-                                      src={
-                                        '../img/participants/' +
-                                        matchDetails.matchpartecipant[0] +
-                                        '_' +
-                                        matchDetails.matchcategory +
-                                        '.png'
-                                      }
-                                      alt=""
-                                    />
-                                  </Box>
-                                  <Box className="korianzombi_img_prnt">
-                                    <Box
-                                      component="img"
-                                      src={
-                                        '../img/participants/' +
-                                        matchDetails.matchpartecipant[1] +
-                                        '_' +
-                                        matchDetails.matchcategory +
-                                        '.png'
-                                      }
-                                      alt=""
-                                    />
-                                  </Box>
-                                  <Typography>
-                                    {matchDetails.matchpartecipant[0]}
-                                    <br />
-                                    {matchDetails.matchpartecipant[1]}
-                                  </Typography>
-                                </Box>
-                                <Box className="logo_right_prnt">
-                                  {/* <Typography></Typography> */}
-                                  <Button className="revokebutton" onClick={() => revokeBetCall(bet.betID)}>
-                                    X
-                                  </Button>
-                                </Box>
-                              </Box>
-                              <Box className="topwin_row">
-                                <Typography>
-                                  {/* <span>To win -</span> */}
-                                  {getOptionDetails(bet.selectedOutCome, matchDetails.matchcategory).label}
-                                </Typography>
-                                <Typography component="h6">
-                                  {getOptionDetails(bet.selectedOutCome, matchDetails.matchcategory).option.name}
-                                </Typography>
-                                <Typography component="h6" style={{ width: '95px' }}>
-                                  {bet.amount.toFixed(4)} {matchDetails.farmtoken}
-                                </Typography>
-                                {/* {bet.resultDeclared &&
-                                !bet.betRevoked &&
-                                !bet.isWinner ? (
-                                  ''
-                                ) : ( */}
-                                <Typography component="h4">
-                                  x{' '}
-                                  {bet.resultDeclared &&
-                                  currentTime > bet.match.lockingPeriod + bet.match.bettingPeriod + bet.match.startTime
-                                    ? //? Number(bet.resultDeclared).toFixed(2)
-                                      Number((bet.amount + bet.claimableReward) / bet.amount).toFixed(2)
-                                    : Number(
-                                        getMultiplier(
-                                          bet.amount,
-                                          bet.match.bettedAmountCalculation[bet.selectedOutCome],
-                                          bet.match.totalBettedAmount,
-                                          bet.match.treasuryFund,
-                                          bet.match.farmapy,
-                                          bet.match.lockingPeriod
-                                        )
-                                      ).toFixed(2)}
-                                  {/* {getMultiplier(
-                                      bet.amount,
-                                      matchDetails.bettedAmountCalculation[
-                                        bet.selectedOutCome - 1
-                                      ],
-                                      matchDetails.totalBettedAmount,
-                                      matchDetails.treasuryFund,
-                                      matchDetails.farmapy,
-                                      matchDetails.lockingPeriod
-                                    )} */}
-                                </Typography>
-                                {/* )} */}
-                              </Box>
-                              <Button
-                                className={
-                                  bet.resultDeclared &&
-                                  currentTime > bet.match.lockingPeriod + bet.match.bettingPeriod + bet.match.startTime
-                                    ? bet.betRevoked
-                                      ? 'table_btns yellow_btn_clr'
-                                      : bet.isWinner
-                                      ? bet.betSettled
-                                        ? 'table_btns yellow_btn_clr'
-                                        : 'table_btns green_btn_clr'
-                                      : bet.betSettled
-                                      ? 'table_btns yellow_btn_clr'
-                                      : 'table_btns red_btn_clr'
-                                    : 'table_btns yellow_btn_clr'
-                                }
-                                onClick={() => claimBet(bet.match, bet.betID)}
-                                disabled={
-                                  bet.betRevoked ||
-                                  bet.betSettled ||
-                                  !bet.resultDeclared ||
-                                  currentTime < bet.match.lockingPeriod + bet.match.bettingPeriod + bet.match.startTime
-                                }
-                              >
-                                {bet.resultDeclared && currentTime > bet.match.lockingPeriod + bet.match.bettingPeriod + bet.match.startTime
-                                  ? bet.betRevoked
-                                    ? 'Revoked Bet'
-                                    : bet.isWinner
-                                    ? bet.betSettled
-                                      ? 'Completed'
-                                      : 'Claim'
-                                    : bet.betSettled
-                                    ? 'Completed'
-                                    : 'Withdraw'
-                                  : ''}
-
-                                {/* {bet.isWinner && bet.resultDeclared
-              ? !bet.betSettled && !bet.betRevoked
-                ? 'Claim Prize'
-                : 'Already Claimed'
-              : bet.betRevoked
-              ? 'Bet Revoked'
-              : bet.resultDeclared && !bet.isWinner
-              ? 'Wait for Result'
-              : ' Lost Bet'} */}
-                              </Button>
-                            </Box>
-                          );
-                        }
-                      })}
-                  </Box>
-                ) : (
-                  <Box className="nobet_bx">
-                    <Box component="img" src="img/allert_ic.svg" alt="" />
-                    <Typography>No bets were placed for this match</Typography>
-                  </Box>
-                )}
-              </Box>
-            </Box>
-
-            {/* relative bets start*/}
-            {selectedBet && selectedBet.length > 0 && (
-              <Box className="single_bet_box">
-                <Box className="head_txt_clean_img">
-                  <Typography component="h3">Single Bet</Typography>
-                  <Box component="img" src="img/cleaner_ic.svg" alt="" />
-                </Box>
-                <Box className="single_bet_inn01">
-                  <Box className="check_text_flex_box">
-                    <Checkbox {...label} defaultChecked />
-                    <Typography>{matchDetails.matchname}</Typography>
-                    <Button>
-                      <Box component="img" src="../img/close_ic.svg" />
-                    </Button>
-                  </Box>
-                  <Box className="outcom_flex_bx">
-                    <Box className="outcom_left">
-                      <Typography component="h5">{selectedBet[1]}</Typography>
-                      <Typography component="h5">
-                        <span>{selectedBet[3]}</span>
-                      </Typography>
-                    </Box>
-                    {/* matchDetails.bettedAmountCalculation[selectedBet[0]]
-                          ? matchDetails.bettedAmountCalculation[selectedBet[0]]
-                          : 1) */}
-                    <Typography component="h6">
-                      x
-                      {getMultiplier(
-                        position,
-                        matchDetails.bettedAmountCalculation[selectedBet[0] - 1],
-                        matchDetails.totalBettedAmount,
-                        matchDetails.treasuryFund,
-                        matchDetails.farmapy,
-                        matchDetails.lockingPeriod
-                      )}
-                      {/* {(
-                        ((position /
-                          (position +
-                            matchDetails.bettedAmountCalculation[
-                              selectedBet[0] - 1
-                            ])) *
-                          (matchDetails.totalBettedAmount +
-                            matchDetails.treasuryFund +
-                            position) *
-                          (matchDetails.farmapy / 365) *
-                          (matchDetails.lockingPeriod / 86400) +
-                          position) /
-                        position
-                      ).toFixed(2)} */}
-                    </Typography>
-                  </Box>
-                </Box>
-              </Box>
-            )}
-            {matchDetails.startTime + matchDetails.bettingPeriod > currentTime && (
-              <Box className="single_bet_bttm_box">
-                <Box className="slidr_flex_box">
-                  {/* <Slider
-                    defaultValue={50}
-                    aria-label='Default'
-                    valueLabelDisplay='auto'
-                    onChange={(_, value) => setPosition(value as number)}
-                    value={position}
-                    min={matchDetails.minimumBet}
-                    max={accountBalance[matchDetails.farmtoken]}
-                  /> */}
-                  <Slider
-                    defaultValue={1}
-                    aria-label="Default"
-                    valueLabelDisplay="auto"
-                    valueLabelFormat={positionValue + ' %'}
-                    onChange={(_, value) => calculateBetAmount(value as number)}
-                    value={positionValue}
-                    min={0}
-                    max={100}
-                  />
-                  <Box className="num_flex">
-                    <Typography component="h5">
-                      {/* {matchDetails.minimumBet} {matchDetails.farmtoken} */}
-                      0%
-                    </Typography>
-                    <Typography component="h5">
-                      100%
-                      {/* {accountBalance[matchDetails.farmtoken] &&
-                        accountBalance[matchDetails.farmtoken].slice(
-                          0,
-                          accountBalance[matchDetails.farmtoken].indexOf('.') +
-                            2
-                        )}{' '}
-                      {matchDetails.farmtoken} */}
-                    </Typography>
-                  </Box>
-                </Box>
-
-                <Box className="bet_bttm_cnter_bx">
-                  <Box className="bttm_cnter_row">
-                    <Typography>Bet Amount:</Typography>
-                    <Typography className="input_box_window">
-                      {' '}
-                      <input className="inpt_box" type="number" value={position} onChange={(e) => changeValue(e.target.value)} />
-                      {matchDetails.farmtoken}
-                      {/* {position.toFixed(5)} {matchDetails.farmtoken} */}
-                    </Typography>
-                  </Box>
-                  <Box className="bttm_cnter_row">
-                    <Typography>Bet Value:</Typography>
-                    <Typography>
-                      {matchDetails.isLP
-                        ? (position * matchDetails.lpPrice).toFixed(2)
-                        : (position * getTokenPrice(matchDetails.rewardtoken)).toFixed(2)}
-                      &nbsp;$
-                      {/* {position.toFixed(5)} {matchDetails.farmtoken} */}
-                    </Typography>
-                  </Box>
-                  <Box className="bttm_cnter_row">
-                    <Typography>Possible winning:</Typography>
-                    <Typography>
-                      {' '}
-                      {matchDetails.bettedAmountCalculation && position && selectedBet[0]
-                        ? (
-                            (((position / (position + matchDetails.bettedAmountCalculation[selectedBet[0] - 1])) *
-                              (((matchDetails.totalBettedAmount + matchDetails.treasuryFund + position) *
-                                (matchDetails.farmapy / 365) *
-                                (matchDetails.lockingPeriod / 86400)) /
-                                100)) /
-                              2.5 +
-                              position) *
-                            rewardstakeratio
-                          ).toFixed(2)
-                        : 0}{' '}
-                      {matchDetails.isLP ? matchDetails.rewardtoken : matchDetails.farmtoken}
-                    </Typography>
-                  </Box>
-                  <Box className="bttm_cnter_row">
-                    <Typography>Cryptocurrency:</Typography>
-                    <a href="https://mm.finance/add/0x97749c9B61F878a880DfE312d2594AE07AEd7656/CRO">
-                      <Box component="img" src={'../img/tokens/' + matchDetails.farmtoken + '.svg'} alt="" />
-                    </a>
-                  </Box>
-                  <Button onClick={() => (address ? (allowance ? placeBetCall() : approvetx()) : connect())}>
-                    {!loading ? (
-                      address ? (
-                        allowance ? (
-                          'Place a Bet'
-                        ) : (
-                          'Approve'
-                        )
-                      ) : (
-                        'Connect Wallet'
-                      )
-                    ) : (
-                      <CircularProgress size={20} color="inherit" />
-                    )}
-                  </Button>
-                </Box>
-
-                <Box className="bet_bttm_last_bx">
-                  <Box className="allert_bx">
-                    <Box component="img" src="img/allert_ic.svg" alt="" />
-                    <Typography>In case your bet is lost, the amount you set will be returned to your balance.</Typography>
-                  </Box>
-                  <Box className="allert_bx2">
-                    <Box component="img" src="img/allert_ic.svg" alt="" />
-                    <Typography>
-                      Multipliers depend a lot on several external factors, such as apr stability, total number of players and total number
-                      of winners. These values are to be intended as a maximum payout.
-                    </Typography>
-                  </Box>
-                </Box>
-              </Box>
-            )}
-          </Grid>
+          </Box>
         </Grid>
-      </Box>
+      </Grid>
     </>
   );
 }
+

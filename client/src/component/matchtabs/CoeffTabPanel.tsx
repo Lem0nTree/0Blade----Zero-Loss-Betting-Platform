@@ -11,14 +11,17 @@ export default function CoeffTabPanel({
   matchDetails,
   sendData,
 }: any) {
-  const [expanded, setExpanded] = React.useState<string | false>('panel1');
-  const [expanded2, setExpanded2] = React.useState<string | false>('panel2');
-  const [expanded3, setExpanded3] = React.useState<string | false>('panel3');
+  // Initialize with first panel expanded
+  const [expandedPanels, setExpandedPanels] = React.useState<{ [key: string]: boolean }>({
+    panel0: true, // First accordion expanded by default
+  });
 
-  const handleChange2 =
-    (panel: string) => (event: React.SyntheticEvent, newExpanded: boolean) => {
-      setExpanded2(newExpanded ? panel : false);
-    };
+  const handleChange = (panel: string) => (event: React.SyntheticEvent, newExpanded: boolean) => {
+    setExpandedPanels((prev) => ({
+      ...prev,
+      [panel]: newExpanded,
+    }));
+  };
 
   const onChangeValue = (value: any, name: any, tabTitle: any, label: any) => {
     sendData([value, name, tabTitle, label]);
@@ -68,11 +71,14 @@ export default function CoeffTabPanel({
           </AccordionDetails>
         </Accordion> */}
         {options.betOptions &&
-          options.betOptions.map((betOption: any, index2: any) => (
+          options.betOptions.map((betOption: any, index2: any) => {
+            const panelId = `panel${index2}`;
+            return (
             <Accordion
+              key={index2}
               className='acordin_main'
-              expanded={expanded2 === 'panel2'}
-              onChange={handleChange2('panel2')}
+              expanded={expandedPanels[panelId] || false}
+              onChange={handleChange(panelId)}
             >
               <AccordionSummary
                 expandIcon={<ExpandMoreIcon />}
@@ -87,19 +93,14 @@ export default function CoeffTabPanel({
               <AccordionDetails className='accordian_inn'>
                 <Grid container spacing={2}>
                   {betOption.options.map((option: any, index: any) => (
-                    <Grid item xs={12} sm={6} md={4}>
+                    <Grid item xs={12} sm={6} md={4} key={index}>
                       <Box className='cstm_radio'>
                         <input
                           type='radio'
-                          name='tab_radio'
+                          name={`tab_radio_${index2}`}
                           value={option.value}
                           onChange={() =>
                             onChangeValue(
-                              // index +
-                              //   1 +
-                              //   (index2 > 0
-                              //     ? options.betOptions[index2 - 1].options.length
-                              //     : 0),
                               option.value,
                               option.name,
                               betOption.tabTitle,
@@ -114,7 +115,8 @@ export default function CoeffTabPanel({
                 </Grid>
               </AccordionDetails>
             </Accordion>
-          ))}
+            );
+          })}
       </Box>
     </>
   );

@@ -5,7 +5,6 @@ import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import TabOneData from './TabOneData';
 import TabInfopanel from './TabInfopanel';
-import { Link } from 'react-router-dom';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -55,7 +54,7 @@ export default function MatchTabOne({ matchDetails }: any) {
             <TabOneData matchDetails={matchDetails} />
           </TabPanel>
           <TabPanel value={value} index={1}>
-            <TabInfopanel />
+            <TabInfopanel matchDetails={matchDetails} />
           </TabPanel>
         </Box>
       </Box>

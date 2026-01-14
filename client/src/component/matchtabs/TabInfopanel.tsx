@@ -1,23 +1,33 @@
 import React from 'react';
 import { Box, Grid, Typography } from '@mui/material';
-import { Link, useParams } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
-import { IReduxState } from '../../store/slices/state.interface';
-import {
-  IMatchSlice,
-  loadMatchDetails,
-  placeBet,
-  revokeBet,
-} from '../../store/slices/matches-slice';
-import { accountEllipsis } from '../../helpers';
 
-export default function TabInfopanel() {
-  const { eventId }: any = useParams();
-  const matchDetails = useSelector<IReduxState, any>((state) => {
-    return state.match.matches.filter(
-      (match: any) => match.matchID == eventId
-    )[0];
-  });
+// Helper function to truncate address
+const accountEllipsis = (address: string) => {
+  if (!address) return '';
+  return `${address.slice(0, 6)}...${address.slice(-4)}`;
+};
+
+export default function TabInfopanel({ matchDetails }: any) {
+  // Sample match details if not provided
+  const defaultMatchDetails = {
+    farmplatform: 'Sample Farm',
+    farmtoken: 'FRAX',
+    farmapy: 10,
+    totalBettedAmount: 10000,
+    treasuryFund: 5000,
+    totalBets: 150,
+    actualPot: 15000,
+    bettingcontract: '0x1234567890123456789012345678901234567890',
+    lockingPeriod: 86400 * 2,
+  };
+
+  const match = matchDetails || defaultMatchDetails;
+  
+  const expectedPot = (
+    ((match.totalBettedAmount + match.treasuryFund) *
+      (match.farmapy / 365) *
+      (match.lockingPeriod / 86400) / 100)
+  ).toFixed(2);
   return (
     <>
       <Box className='tabinfo_prnt'>
@@ -27,45 +37,39 @@ export default function TabInfopanel() {
             <Grid item xs={12} sm={6}>
               <Box className='input_text_border'>
                 <input type='text' placeholder='Farm Platform' />
-                <Typography>{matchDetails.farmplatform}</Typography>
+                <Typography>{match.farmplatform}</Typography>
               </Box>
             </Grid>
             <Grid item xs={12} sm={6}>
               <Box className='input_text_border'>
                 <input type='text' placeholder='Expected POT' />
                 <Typography>
-                  {(
-                    ((matchDetails.totalBettedAmount +
-                      matchDetails.treasuryFund) *
-                    (matchDetails.farmapy / 365) *
-                    (matchDetails.lockingPeriod / 86400) / 100)
-                  ).toFixed(2)}{' '}
-                  {matchDetails.farmtoken}
+                  {expectedPot} {match.farmtoken}
                 </Typography>
               </Box>
             </Grid>
             <Grid item xs={12} sm={6}>
               <Box className='input_text_border'>
                 <input type='text' placeholder='Farm Token' />
-                <Typography>{matchDetails.farmtoken}</Typography>
+                <Typography>{match.farmtoken}</Typography>
               </Box>
             </Grid>
             <Grid item xs={12} sm={6}>
               <Box className='input_text_border'>
                 <input type='text' placeholder='Actual POT' />
-                <Typography>{matchDetails.actualPot} {matchDetails.farmtoken}</Typography>
+                <Typography>{match.actualPot} {match.farmtoken}</Typography>
               </Box>
             </Grid>
             <Grid item xs={12} sm={6}>
               <Box className='input_text_border'>
                 <input type='text' placeholder='Farm API' />
-                <Typography>{matchDetails.farmapy}%</Typography>
+                <Typography>{match.farmapy}%</Typography>
               </Box>
             </Grid>
             <Grid item xs={12} sm={6}>
               <Box className='input_text_border'>
                 <input type='text' placeholder='Players Number' />
-                <Typography>{matchDetails.totalBets}</Typography>
+                <Typography>{match.totalBets}</Typography>
               </Box>
             </Grid>
           </Grid>
@@ -80,11 +84,12 @@ export default function TabInfopanel() {
                     style={{ color: 'white' }}
                     href={
                       'https://cronoscan.com/token/' +
-                      matchDetails.bettingcontract
+                      match.bettingcontract
                     }
                     target='_blank'
+                    rel="noopener noreferrer"
                   >
-                    {accountEllipsis(matchDetails.bettingcontract)}
+                    {accountEllipsis(match.bettingcontract)}
                   </a>
                 </Typography>
               </Box>

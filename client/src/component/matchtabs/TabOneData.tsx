@@ -1,19 +1,14 @@
 import React from 'react';
 import { Box, Typography, Grid } from '@mui/material';
 import Slider from '@mui/material/Slider';
-import { format } from 'date-fns';
-import Countdown from 'react-countdown';
 
-export default function ({ matchDetails }: any) {
+export default function TabOneData({ matchDetails }: any) {
   const currentTime = Date.now() / 1000;
-
-  const renderer = ({ days, hours, minutes, seconds, completed }: any) => {
-    // Render a countdown
-    return (
-      <span>
-        {hours + days * 24}:{minutes}:{seconds}
-      </span>
-    );
+  
+  // Calculate dates for display
+  const formatDate = (timestamp: number) => {
+    const date = new Date(timestamp * 1000);
+    return date.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' });
   };
   return (
     <>
@@ -25,26 +20,32 @@ export default function ({ matchDetails }: any) {
               <Box
                 component='img'
                 src={
-                  '../img/participants/' +
-                  matchDetails.matchpartecipant[0] +
-                  '_' +
-                  matchDetails.matchcategory +
-                  '.png'
+                  matchDetails.matchpartecipant[0].toLowerCase().includes('barcelona')
+                    ? 'img/baclona_logo.svg'
+                    : matchDetails.matchpartecipant[0].toLowerCase().includes('real madrid')
+                    ? 'img/real_medrid.svg'
+                    : `img/participants/${matchDetails.matchpartecipant[0]}_${matchDetails.matchcategory}.png`
                 }
                 alt=''
+                onError={(e: any) => {
+                  e.target.src = `img/participants/${matchDetails.matchpartecipant[0]}_${matchDetails.matchcategory}.png`;
+                }}
               />
             </Box>
             <Box className='korianzombi_img_prnt'>
               <Box
                 component='img'
                 src={
-                  '../img/participants/' +
-                  matchDetails.matchpartecipant[1] +
-                  '_' +
-                  matchDetails.matchcategory +
-                  '.png'
+                  matchDetails.matchpartecipant[1].toLowerCase().includes('barcelona')
+                    ? 'img/baclona_logo.svg'
+                    : matchDetails.matchpartecipant[1].toLowerCase().includes('real madrid')
+                    ? 'img/real_medrid.svg'
+                    : `img/participants/${matchDetails.matchpartecipant[1]}_${matchDetails.matchcategory}.png`
                 }
                 alt=''
+                onError={(e: any) => {
+                  e.target.src = `img/participants/${matchDetails.matchpartecipant[1]}_${matchDetails.matchcategory}.png`;
+                }}
               />
             </Box>
             <Typography component='h6'>
@@ -56,7 +57,7 @@ export default function ({ matchDetails }: any) {
           <Box className='time_data_right'>
             <Typography>Start of the match</Typography>
             <Typography component='h5'>
-              {format(new Date(matchDetails.date * 1000), 'dd-MM-yyyy')}
+              {formatDate(matchDetails.date)}
             </Typography>
           </Box>
         </Box>
@@ -77,27 +78,10 @@ export default function ({ matchDetails }: any) {
                 {matchDetails.startTime < currentTime &&
                 matchDetails.startTime + matchDetails.bettingPeriod >
                   currentTime ? (
-                  <span className='activeperiod'>Betting Period: &nbsp;
-                    <Countdown
-                    date={
-                      (matchDetails.startTime + matchDetails.bettingPeriod) *
-                      1000
-                    }
-                    className={"micci"}
-                    renderer={renderer}
-                  /></span>
+                  <span className='activeperiod'>Betting Period: Active</span>
                 ) : (
                   <span>Betting Period: {(matchDetails.bettingPeriod / 86400).toFixed(0)} Days</span>
                 )}
-                {/* <span>
-                  <Countdown
-                    date={
-                      (matchDetails.startTime + matchDetails.bettingPeriod) *
-                      1000
-                    }
-                    renderer={renderer}
-                  />
-                </span> */}
               </Typography>
 
               {/* <Typography component='h4'>Betting Period</Typography>
@@ -136,18 +120,9 @@ export default function ({ matchDetails }: any) {
                   matchDetails.bettingPeriod +
                   matchDetails.lockingPeriod >
                   currentTime ? (
-                    <span className='activeperiod'>Locked Period: &nbsp;
-                    <Countdown
-                    date={
-                      (matchDetails.startTime +
-                        matchDetails.bettingPeriod +
-                        matchDetails.lockingPeriod) *
-                      1000
-                    }
-                    renderer={renderer}
-                  /></span>
+                    <span className='activeperiod'>Locked Period: Active</span>
                 ) : (
-                  <span>Locked Period: {matchDetails.lockingPeriod / 86400} Days</span>
+                  <span>Locked Period: {(matchDetails.lockingPeriod / 86400).toFixed(0)} Days</span>
                 )}
               </Typography>
             </Box>
@@ -185,19 +160,9 @@ export default function ({ matchDetails }: any) {
                   matchDetails.lockingPeriod +
                   matchDetails.claimingPeriod >
                   currentTime ? (
-                  <span className='activeperiod'>Claiming Period: &nbsp;
-                  <Countdown
-                    date={
-                      (matchDetails.startTime +
-                        matchDetails.bettingPeriod +
-                        matchDetails.lockingPeriod +
-                        matchDetails.claimingPeriod) *
-                      1000
-                    }
-                    renderer={renderer}
-                  /></span>
+                  <span className='activeperiod'>Claiming Period: Active</span>
                 ) : (
-                  <span>Claiming Period: {matchDetails.claimingPeriod / 86400} Days</span>
+                  <span>Claiming Period: {(matchDetails.claimingPeriod / 86400).toFixed(0)} Days</span>
                 )}
               </Typography>
             </Box>

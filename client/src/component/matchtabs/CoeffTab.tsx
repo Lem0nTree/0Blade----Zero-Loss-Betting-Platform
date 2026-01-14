@@ -4,10 +4,7 @@ import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import CoeffTabPanel from './CoeffTabPanel';
-import CoeffTabPanelTwo from './CoeffTabPanelTwo';
-import CoeffTabPanelThree from './CoeffTabPanelThree';
-import CoeffTabPanelFour from './CoeffTabPanelFour';
-import betOptions from '../../data/betOptions.json';
+import betOptionsData from '../../data/betOptions.json';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -37,16 +34,20 @@ function TabPanel(props: TabPanelProps) {
 
 export default function CoeffTab({ matchDetails, sendToMatch }: any) {
   const [value, setValue] = React.useState(0);
-  const options = betOptions.filter(
-    (betOption) => betOption.category == matchDetails.matchcategory
-  )[0];
+  
+  // Get bet options for the match category
+  const options = betOptionsData.find(
+    (opt) => opt.category === matchDetails.matchcategory
+  ) || betOptionsData[0]; // Default to first category if not found
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
   };
 
   const getData = (value: any) => {
-    sendToMatch(value);
+    if (sendToMatch) {
+      sendToMatch(value);
+    }
   };
 
   return (
@@ -61,9 +62,9 @@ export default function CoeffTab({ matchDetails, sendToMatch }: any) {
           aria-label='scrollable force tabs example'
           className='tabs_heder_prnt'
         >
-          <Tab label='All' />
-          {options.betOptions.map((option) => (
-            <Tab label={option.tabTitle} />
+          <Tab label='All' key="all" />
+          {options.betOptions.map((option, idx) => (
+            <Tab label={option.tabTitle} key={idx} />
           ))}
         </Tabs>
       </Box>
@@ -76,7 +77,7 @@ export default function CoeffTab({ matchDetails, sendToMatch }: any) {
           />
         </TabPanel>
         {options.betOptions.map((option, index) => (
-          <TabPanel value={value} index={index + 1}>
+          <TabPanel value={value} index={index + 1} key={index}>
             <CoeffTabPanel
               options={{ betOptions: [options.betOptions[index]] }}
               matchDetails={matchDetails}
