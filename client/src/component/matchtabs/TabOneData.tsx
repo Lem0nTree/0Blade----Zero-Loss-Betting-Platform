@@ -19,33 +19,15 @@ export default function TabOneData({ matchDetails }: any) {
             <Box className='volkski_img_prnt'>
               <Box
                 component='img'
-                src={
-                  matchDetails.matchpartecipant[0].toLowerCase().includes('barcelona')
-                    ? 'img/baclona_logo.svg'
-                    : matchDetails.matchpartecipant[0].toLowerCase().includes('real madrid')
-                    ? 'img/real_medrid.svg'
-                    : `img/participants/${matchDetails.matchpartecipant[0]}_${matchDetails.matchcategory}.png`
-                }
+                src='/img/participants/Barcelona_0.png'
                 alt=''
-                onError={(e: any) => {
-                  e.target.src = `img/participants/${matchDetails.matchpartecipant[0]}_${matchDetails.matchcategory}.png`;
-                }}
               />
             </Box>
             <Box className='korianzombi_img_prnt'>
               <Box
                 component='img'
-                src={
-                  matchDetails.matchpartecipant[1].toLowerCase().includes('barcelona')
-                    ? 'img/baclona_logo.svg'
-                    : matchDetails.matchpartecipant[1].toLowerCase().includes('real madrid')
-                    ? 'img/real_medrid.svg'
-                    : `img/participants/${matchDetails.matchpartecipant[1]}_${matchDetails.matchcategory}.png`
-                }
+                src='/img/participants/RealMadrid_0.png'
                 alt=''
-                onError={(e: any) => {
-                  e.target.src = `img/participants/${matchDetails.matchpartecipant[1]}_${matchDetails.matchcategory}.png`;
-                }}
               />
             </Box>
             <Typography component='h6'>

@@ -132,34 +132,6 @@ export default function Match() {
     return (amount * powerMultiplier).toFixed(2);
   };
 
-  // Helper function to get team logo
-  const getTeamLogo = (teamName: string, isFirst: boolean) => {
-    const teamLower = teamName.toLowerCase();
-    if (teamLower.includes('barcelona')) {
-      return isFirst ? 'img/baclona_logo.svg' : 'img/baclona_logo.svg';
-    }
-    if (teamLower.includes('real madrid')) {
-      return 'img/real_medrid.svg';
-    }
-    if (teamLower.includes('chelsea')) {
-      return 'img/chelsea_logo.svg';
-    }
-    if (teamLower.includes('manchester')) {
-      return 'img/manchester_logo.svg';
-    }
-    if (teamLower.includes('liverpool')) {
-      return 'img/liverpool_logo.svg';
-    }
-    if (teamLower.includes('psg')) {
-      return 'img/psg_logo.svg';
-    }
-    if (teamLower.includes('sevilla')) {
-      return 'img/sevilla_logo.svg';
-    }
-    // Default to participant image
-    return `img/participants/${teamName}_${matchDetails.matchcategory}.png`;
-  };
-
   const getLeagueName = (category: string) => {
     const leagues: { [key: string]: string } = {
       '0': 'La Liga',
@@ -204,11 +176,8 @@ export default function Match() {
                   <Box className="volkski_img_prnt">
                     <Box 
                       component="img" 
-                      src={getTeamLogo(matchDetails.matchpartecipant[0], true)} 
+                      src="/img/participants/Barcelona_0.png" 
                       alt="" 
-                      onError={(e: any) => {
-                        e.target.src = `img/participants/${matchDetails.matchpartecipant[0]}_${matchDetails.matchcategory}.png`;
-                      }}
                     />
                   </Box>
                   <Typography component="p">{matchDetails.matchpartecipant[0]}</Typography>
@@ -245,11 +214,8 @@ export default function Match() {
                   <Box className="korianzombi_img_prnt">
                     <Box 
                       component="img" 
-                      src={getTeamLogo(matchDetails.matchpartecipant[1], false)} 
+                      src="/img/participants/RealMadrid_0.png" 
                       alt="" 
-                      onError={(e: any) => {
-                        e.target.src = `img/participants/${matchDetails.matchpartecipant[1]}_${matchDetails.matchcategory}.png`;
-                      }}
                     />
                   </Box>
                   <Typography component="p">{matchDetails.matchpartecipant[1]}</Typography>
