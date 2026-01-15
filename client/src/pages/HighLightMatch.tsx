@@ -44,14 +44,15 @@ const HighLightMatch = () => {
               {getSportName(matchDetails.matchcategory)}
             </Typography>
           </Box>
-          <a
-            href="#"
+          <Box
+            component='a'
+            href="https://www.youtube.com"
             className='youtube_link'
             target='_blank'
             rel="noopener noreferrer"
           >
             <Box component='img' src='img/youtube_ic.svg' alt='' />
-          </a>
+          </Box>
         </Box>
         <Box className='teams_score'>
           <Box className='team_logo_name'>

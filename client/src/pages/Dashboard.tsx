@@ -9,7 +9,7 @@ import matchesData from '../data/matches.json';
 
 export default function Dashboard() {
   const [value, setValue] = React.useState<Date | null>(new Date());
-  const [matches, setMatches] = useState(matchesData);
+  const [matches] = useState(matchesData);
   const [bannerMatch, setBannerMatch] = useState<any>(null);
   const [totalBetted, setTotalBetted] = useState(0);
 

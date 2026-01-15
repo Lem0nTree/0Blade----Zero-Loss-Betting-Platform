@@ -169,15 +169,6 @@ export default function Match() {
     return leagues[category] || 'League Match';
   };
 
-  const formatMatchDate = (timestamp: number) => {
-    const date = new Date(timestamp * 1000);
-    return date.toLocaleDateString('en-US', { 
-      month: 'long', 
-      day: 'numeric', 
-      year: 'numeric' 
-    });
-  };
-
   return (
     <>
       <Grid container spacing={2}>
@@ -188,36 +179,81 @@ export default function Match() {
                 <Typography component="p">{getLeagueName(matchDetails.matchcategory)}</Typography>
                 <Typography component="h4">{matchDetails.matchname}</Typography>
               </Box>
-              <Box className="match_logo_bx">
-                <Box className="volkski_img_prnt" style={{ marginBottom: '10px' }}>
-                  <Box 
-                    component="img" 
-                    src={getTeamLogo(matchDetails.matchpartecipant[0], true)} 
-                    alt="" 
-                    onError={(e: any) => {
-                      e.target.src = `img/participants/${matchDetails.matchpartecipant[0]}_${matchDetails.matchcategory}.png`;
-                    }}
-                  />
+              <Box 
+                className="match_logo_bx"
+                sx={{
+                  display: 'flex !important',
+                  flexDirection: 'row !important',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '20px',
+                  flexWrap: 'wrap',
+                  minHeight: 'auto !important',
+                }}
+              >
+                {/* Team 1 - Left */}
+                <Box 
+                  sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    flex: '1',
+                    minWidth: '120px',
+                  }}
+                >
+                  <Box className="volkski_img_prnt">
+                    <Box 
+                      component="img" 
+                      src={getTeamLogo(matchDetails.matchpartecipant[0], true)} 
+                      alt="" 
+                      onError={(e: any) => {
+                        e.target.src = `img/participants/${matchDetails.matchpartecipant[0]}_${matchDetails.matchcategory}.png`;
+                      }}
+                    />
+                  </Box>
+                  <Typography component="p">{matchDetails.matchpartecipant[0]}</Typography>
                 </Box>
-                <Typography component="p">{matchDetails.matchpartecipant[0]}</Typography>
-                <Box className="cro_flex" style={{ marginTop: '15px', marginBottom: '15px' }}>
+
+                {/* VS - Center */}
+                <Box 
+                  className="cro_flex"
+                  sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px',
+                  }}
+                >
                   <Box component="img" src="img/cronosports.svg" alt="" />
                   <Typography component="h5">
                     <span>VS</span>
                   </Typography>
                   <Box component="img" src="img/cronosports.svg" alt="" />
                 </Box>
-                <Box className="korianzombi_img_prnt" style={{ marginTop: '10px' }}>
-                  <Box 
-                    component="img" 
-                    src={getTeamLogo(matchDetails.matchpartecipant[1], false)} 
-                    alt="" 
-                    onError={(e: any) => {
-                      e.target.src = `img/participants/${matchDetails.matchpartecipant[1]}_${matchDetails.matchcategory}.png`;
-                    }}
-                  />
+
+                {/* Team 2 - Right */}
+                <Box 
+                  sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    flex: '1',
+                    minWidth: '120px',
+                  }}
+                >
+                  <Box className="korianzombi_img_prnt">
+                    <Box 
+                      component="img" 
+                      src={getTeamLogo(matchDetails.matchpartecipant[1], false)} 
+                      alt="" 
+                      onError={(e: any) => {
+                        e.target.src = `img/participants/${matchDetails.matchpartecipant[1]}_${matchDetails.matchcategory}.png`;
+                      }}
+                    />
+                  </Box>
+                  <Typography component="p">{matchDetails.matchpartecipant[1]}</Typography>
                 </Box>
-                <Typography component="p">{matchDetails.matchpartecipant[1]}</Typography>
               </Box>
             </Box>
 

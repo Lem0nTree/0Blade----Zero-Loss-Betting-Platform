@@ -92,14 +92,13 @@ export default function Header() {
     setAnchorElthree(null);
   };
 
-  const { logo, menuButton, drawerContainer } = useStyles();
+  const { menuButton } = useStyles();
 
   const [state, setState] = useState({
     mobileView: false,
-    drawerOpen: false,
   });
 
-  const { mobileView, drawerOpen } = state;
+  const { mobileView } = state;
 
   useEffect(() => {
     const setResponsiveness = () => {
